@@ -1,0 +1,33 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              netcdf
+set              version           @pver@
+set              root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prereq            hdf5
+prereq            pnetcdf
+
+setenv            NETCDF_ROOT       ${root}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig

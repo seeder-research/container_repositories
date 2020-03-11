@@ -1,0 +1,5 @@
+BootStrap: docker
+From: centos:7
+
+%post
+yum upgrade -y

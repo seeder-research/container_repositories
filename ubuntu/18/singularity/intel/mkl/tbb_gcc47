@@ -1,0 +1,28 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) Threading Building Blocks version 2019 Update 2 to your environment variables"
+}
+
+module-whatis "adds Intel(R) Threading Building Blocks version 2019 Update 2 to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64]} {prereq intel/mkl}
+if {![is-loaded intel/mkl]} {prereq intel/mkl_ilp64}
+
+set              vendor            intel
+set              comp_name         tbb
+set              version           @pver@
+set              base              /opt/${vendor}/compilers_and_libraries_${version}/linux
+set              root              ${base}/${comp_name}
+
+setenv TBBROOT ${root}
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64/gcc4.7
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64/gcc4.7
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64/gcc4.7
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include

@@ -1,0 +1,28 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+computecpp-ce-2.2.1-x86_64-linux-gnu.tar.gz                /opt
+modfile                                                    /opt
+
+%post
+export SYCL_VER=2.2.1
+export SEDSTR="s@/home/jenkins/workspace/ccp_runtime_build/install@/opt/computecpp/${SYCL_VER}@"
+mkdir -p /opt/computecpp/ && \
+cd /opt/computecpp && \
+tar xf /opt/computecpp-ce-${SYCL_VER}-x86_64-linux-gnu.tar.gz
+if [ ! -d /usr/local/modulefiles/dev/computecpp ]; then
+    mkdir -p /usr/local/modulefiles/dev/computecpp
+fi
+mv /opt/computecpp/ComputeCpp-CE-${SYCL_VER}-x86_64-linux-gnu \
+  /opt/computecpp/${SYCL_VER} && \
+cd /usr/local/modulefiles/dev/computecpp && \
+sed -i "${SEDSTR}" \
+  /opt/computecpp/${SYCL_VER}/lib/pkgconfig/computecpp.pc && \
+sed -i "s/@pver@/${SYCL_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/computecpp/${SYCL_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SYCL_VER}" >> .version && \
+rm -f \
+  /opt/computecpp-ce-${SYCL_VER}-x86_64-linux-gnu.tar.gz \

@@ -1,0 +1,59 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export SUNDIALS_VER=5.3.0
+. /etc/profile.d/modules.sh && \
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev && \
+module load \
+  openmpi \
+  intel/mkl \
+  hdf5 \
+  boost \
+  metis \
+  suitesparse \
+  parmetis \
+  pnetcdf \
+  netcdf \
+  hypre \
+  scotch \
+  petsc \
+  slepc
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/LLNL/sundials/archive/v${SUNDIALS_VER}.tar.gz && \
+tar xf /opt/v${SUNDIALS_VER}.tar.gz && \
+cd /opt/sundials-${SUNDIALS_VER} && \
+mkdir /opt/sundials-builddir && \
+cd /opt/sundials-builddir && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/sundials/${SUNDIALS_VER} \
+  -DEXAMPLES_INSTALL=OFF \
+  -DMPI_ENABLE=ON \
+  -DOPENMP_ENABLE=ON \
+  -DPTHREAD_ENABLE=ON \
+  -DLAPACK_LIBRARIES=${MKLROOT}/lib/intel64/libmkl_rt.so \
+  -DPETSC_DIR=${PETSC_ROOT} \
+  /opt/sundials-${SUNDIALS_VER} && \
+make -j$(nproc) all && \
+make install && \
+mkdir /usr/local/modulefiles/dev/sundials && \
+cd /usr/local/modulefiles/dev/sundials && \
+sed -i "s/@pver@/${SUNDIALS_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/sundials/${SUNDIALS_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SUNDIALS_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/sundials-builddir \
+  /opt/v${SUNDIALS_VER}.tar.gz \
+  /opt/sundials-${SUNDIALS_VER}

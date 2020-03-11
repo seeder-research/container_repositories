@@ -1,0 +1,50 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile         /opt
+Makefile.inc    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  parmetis \
+  scotch
+export MUMPS_VER=5.3.1
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://mumps.enseeiht.fr/MUMPS_${MUMPS_VER}.tar.gz && \
+tar xf MUMPS_${MUMPS_VER}.tar.gz && \
+cd /opt/MUMPS_${MUMPS_VER} && \
+mv /opt/Makefile.inc ./ && \
+make alllib libseqneeded && \
+mkdir -p /usr/local/mumps/${MUMPS_VER} && \
+cp -a \
+  /opt/MUMPS_${MUMPS_VER}/include \
+  /usr/local/mumps/${MUMPS_VER}/include && \
+cp -a \
+  /opt/MUMPS_${MUMPS_VER}/lib \
+  /usr/local/mumps/${MUMPS_VER}/lib && \
+cp -a \
+  /opt/MUMPS_${MUMPS_VER}/libseq/libmpiseq* \
+  /usr/local/mumps/${MUMPS_VER}/lib/. && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/MUMPS_${MUMPS_VER} \
+  /opt/MUMPS_${MUMPS_VER}.tar.gz && \
+mkdir -p /usr/local/modulefiles/dev/mumps && \
+cd /usr/local/modulefiles/dev/mumps && \
+sed -i "s/@pver@/${MUMPS_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/mumps/${MUMPS_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${MUMPS_VER}" >> .version

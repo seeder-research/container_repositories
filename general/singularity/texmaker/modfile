@@ -1,0 +1,18 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              texmaker
+set   		  version	    @pver@
+set               root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} ${version} to your environment."
+
+prereq            qt/5.15.2
+
+prepend-path	  PATH		    $root/bin

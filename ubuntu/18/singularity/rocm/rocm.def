@@ -1,0 +1,85 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+export ROC_VER=4.2.0
+apt-get update && \
+apt-get install -y \
+  libnuma-dev \
+  gnupg2 \
+  wget && \
+cd /opt && \
+wget -qO - http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add - && \
+echo 'deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ ubuntu main' | tee /etc/apt/sources.list.d/rocm.list && \
+apt-get update && \
+apt-get install -y \
+  comgr \
+  fakeroot \
+  g++-7-multilib \
+  g++-multilib \
+  gcc-7-multilib \
+  gcc-multilib \
+  hsa-amd-aqlprofile \
+  hsa-ext-rocr-dev \
+  hsa-rocr-dev \
+  hsakmt-roct \
+  hsakmt-roct-dev \
+  kmod \
+  lib32asan4 \
+  lib32atomic1 \
+  lib32cilkrts5 \
+  lib32gcc-7-dev \
+  lib32gcc1 \
+  lib32gomp1 \
+  lib32itm1 \
+  lib32mpx2 \
+  lib32quadmath0 \
+  lib32stdc++-7-dev \
+  lib32stdc++6 \
+  lib32ubsan0 \
+  libc6-dev-i386 \
+  libc6-dev-x32 \
+  libc6-i386 \
+  libc6-x32 \
+  libfakeroot \
+  libkmod2 \
+  libpci3 \
+  libx32asan4 \
+  libx32atomic1 \
+  libx32cilkrts5 \
+  libx32gcc-7-dev \
+  libx32gcc1 \
+  libx32gomp1 \
+  libx32itm1 \
+  libx32quadmath0 \
+  libx32stdc++-7-dev \
+  libx32stdc++6 libx32ubsan0 \
+  linux-headers-generic \
+  rocblas \
+  rocfft \
+  rocsparse \
+  rocm-clang-ocl \
+  rocm-cmake \
+  rocm-dev \
+  rocm-device-libs \
+  rocm-opencl \
+  rocm-opencl-dev \
+  rocm-smi \
+  rocm-utils \
+  rocminfo \
+  rocprofiler-dev \
+  rocm-opencl-dev && \
+mkdir -p /usr/local/modulefiles/dev/roc && \
+cd /usr/local/modulefiles/dev/roc && \
+sed -i "s/@pver@/${ROC_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/roc/.version && \
+echo set ModulesVersion "${ROC_VER}" >> /usr/local/modulefiles/dev/roc/.version && \
+rm -rf \
+  /var/lib/apt/lists/*

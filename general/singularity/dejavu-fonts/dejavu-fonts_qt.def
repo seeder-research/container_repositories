@@ -1,0 +1,16 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  qt
+export DVUVER=2.37
+cd /opt && \
+wget --no-check-certificate http://sourceforge.net/projects/dejavu/files/dejavu/${DVUVER}/dejavu-fonts-ttf-${DVUVER}.tar.bz2 && \
+tar xf /opt/dejavu-fonts-ttf-${DVUVER}.tar.bz2 && \
+mv /opt/dejavu-fonts-ttf-${DVUVER}/ttf \
+  ${QT_HOME}/lib/fonts && \
+rm -rf \
+  /opt/dejavu-*

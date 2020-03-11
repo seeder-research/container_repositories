@@ -1,0 +1,150 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  nasm && \
+export FFMPEG_VER=4.4
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+mkdir -p /usr/local/modulefiles/ffmpeg && \
+sed -i "s/@pver@/${FFMPEG_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/ffmpeg/${FFMPEG_VER} && \
+module load \
+  ffmpeg/${FFMPEG_VER} &&\
+mkdir -p /opt/ffmpeg_src && \
+cd /opt/ffmpeg_src && \
+git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
+cd /opt/ffmpeg_src/x264 && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-static --enable-pic --disable-opencl && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+rm -rf /opt/ffmpeg_src/x264 && \
+git clone --depth 1 https://code.videolan.org/videolan/x264.git -b stable && \
+cd /opt/ffmpeg_src/x264 && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-shared --disable-opencl && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+hg clone http://hg.videolan.org/x265 && \
+cd /opt/ffmpeg_src/x265 && \
+hg up "stable" && \
+cd /opt/ffmpeg_src/x265/build/linux && \
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/usr/local/ffmpeg/${FFMPEG_VER}" -DENABLE_SHARED=off ../../source && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+rm -rf /opt/ffmpeg_src/x265 && \
+hg clone http://hg.videolan.org/x265 && \
+cd /opt/ffmpeg_src/x265 && \
+hg up "stable" && \
+cd /opt/ffmpeg_src/x265/build/linux && \
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/usr/local/ffmpeg/${FFMPEG_VER}" -DENABLE_SHARED=on ../../source && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git -b v1.10.0 && \
+cd /opt/ffmpeg_src/libvpx && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-shared --enable-static --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+git clone --depth 1 https://github.com/mstorsjo/fdk-aac -b v2.0.2 && \
+cd /opt/ffmpeg_src/fdk-aac && \
+autoreconf -fiv && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --disable-shared && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+rm -rf /opt/ffmpeg_src/fdk-aac && \
+git clone --depth 1 https://github.com/mstorsjo/fdk-aac -b v2.0.2 && \
+cd /opt/ffmpeg_src/fdk-aac && \
+autoreconf -fiv && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-shared && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+wget -O /opt/lame-3.100.tar.gz https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz && \
+tar xzvf /opt/lame-3.100.tar.gz && \
+cd /opt/ffmpeg_src/lame-3.100 && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --disable-shared --enable-nasm && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+rm -rf /opt/ffmpeg_src/lame-3.100 && \
+tar xzvf /opt/lame-3.100.tar.gz && \
+cd /opt/ffmpeg_src/lame-3.100 && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-shared --enable-nasm && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+git clone --depth 1 https://github.com/xiph/opus.git -b v1.3.1 && \
+cd /opt/ffmpeg_src/opus && \
+./autogen.sh && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --disable-shared && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+rm -rf /opt/ffmpeg_src/opus && \
+git clone --depth 1 https://github.com/xiph/opus.git -b v1.3.1 && \
+cd /opt/ffmpeg_src/opus && \
+./autogen.sh && \
+./configure --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" --enable-shared && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+git clone --depth 1 https://aomedia.googlesource.com/aom -b v3.1.0 && \
+mkdir -p /opt/ffmpeg_src/aom_build_static && \
+mkdir -p /opt/ffmpeg_src/aom_build_shared && \
+cd /opt/ffmpeg_src/aom_build_static && \
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/usr/local/ffmpeg/${FFMPEG_VER}" -DBUILD_SHARED_LIBS=OFF -DAOM_C_FLAGS=-fPIC -DAOM_CXX_FLAGS=-fPIC -DENABLE_NASM=on /opt/ffmpeg_src/aom && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src/aom_build_shared && \
+cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="/usr/local/ffmpeg/${FFMPEG_VER}" -DBUILD_SHARED_LIBS=ON -DAOM_C_FLAGS=-fPIC -DAOM_CXX_FLAGS=-fPIC -DENABLE_NASM=on /opt/ffmpeg_src/aom && \
+make -j$(nproc) && \
+make install && \
+cd /opt/ffmpeg_src && \
+wget -O /opt/ffmpeg_src/ffmpeg-${FFMPEG_VER}.tar.bz2 https://ffmpeg.org/releases/ffmpeg-${FFMPEG_VER}.tar.bz2 && \
+tar xf /opt/ffmpeg_src/ffmpeg-${FFMPEG_VER}.tar.bz2 && \
+cd /opt/ffmpeg_src/ffmpeg-${FFMPEG_VER} && \
+./configure \
+  --prefix="/usr/local/ffmpeg/${FFMPEG_VER}" \
+  --pkg-config-flags="--static" \
+  --extra-cflags="-I/usr/local/ffmpeg/${FFMPEG_VER}/include" \
+  --extra-ldflags="-L/usr/local/ffmpeg/${FFMPEG_VER}/lib" \
+  --extra-libs="-lpthread -lm" \
+  --enable-gpl \
+  --enable-libaom \
+  --enable-libass \
+  --enable-libfdk-aac \
+  --enable-libfreetype \
+  --enable-libmp3lame \
+  --enable-libopus \
+  --enable-libvorbis \
+  --enable-libvpx \
+  --enable-libx264 \
+  --enable-libx265 \
+  --enable-openssl \
+  --enable-shared \
+  --enable-static \
+  --enable-nonfree && \
+make -j$(nproc) && \
+make install && \
+cd /usr/local/modulefiles/ffmpeg && \
+echo "#%Module" > /usr/local/modulefiles/ffmpeg/.version && \
+echo set ModulesVersion "${FFMPEG_VER}" >> /usr/local/modulefiles/ffmpeg/.version && \
+rm -rf \
+  /opt/lame-3.100.tar.gz \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/ffmpeg_src

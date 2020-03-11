@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/conda.sh
+module load \
+  openmpi \
+  intel/mkl \
+  boost
+export Boost_INCLUDE_DIR=${LIBBOOST_ROOT}/include
+export PYBIND11_VER=2.5.0
+export PYVER=3.8
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/pybind/pybind11/archive/v${PYBIND11_VER}.tar.gz && \
+tar xf /opt/v${PYBIND11_VER}.tar.gz && \
+mkdir -p /opt/pybind11-${PYBIND11_VER}/build && \
+cd /opt/pybind11-${PYBIND11_VER}/build && \
+/opt/conda/bin/python \
+  -m pip install \
+  pytest && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/pybind11/${PYBIND11_VER} \
+  -DCMAKE_BUILD_TYPE=release \
+  .. && \
+make -j$(nproc) && \
+make install && \
+cd /opt/pybind11-${PYBIND11_VER} && \
+/opt/conda/bin/python \
+  setup.py \
+  install \
+  --prefix=/usr/local/pybind11/${PYBIND11_VER} && \
+mkdir -p /usr/local/modulefiles/dev/pybind11 && \
+cd /usr/local/modulefiles/dev/pybind11 && \
+sed -i "s/@pver@/${PYBIND11_VER}/g" /opt/modfile && \
+sed -i "s/@pyver@/${PYVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/pybind11/${PYBIND11_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PYBIND11_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/v${PYBIND11_VER}.tar.gz \
+  /opt/pybind11-${PYBIND11_VER}

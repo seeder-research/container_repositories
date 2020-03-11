@@ -1,0 +1,29 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export MUVIEW_SRC=https://github.com/grahamrow/Muview2/archive/
+export MUVIEW_VER=2.2a2
+export MUVIEW_FN=${MUVIEW_VER}.tar.gz
+cd /opt && \
+wget --no-check-certificate \
+  ${MUVIEW_SRC}/${MUVIEW_FN} && \
+tar xf /opt/${MUVIEW_FN} && \
+rm -rf /opt/${MUVIEW_FN} && \
+cd /opt/Muview2-${MUVIEW_VER}/source && \
+export NAME=/usr/local/muview/${MUVIEW_VER}
+qmake -r -spec linux-g++ -config release && \
+cd .. && \
+qmake -r -spec linux-g++ -config release && \
+make -j20
+export FILES="muview README.md LICENSE"
+mkdir -p $NAME && \
+cp deploy/MakefileInstall $NAME/Makefile && \
+cp -R source/resources $NAME && \
+rm -f \
+  $NAME/resources/muview.icns \
+  $NAME/resources/splash*.png && \
+cp $FILES $NAME && \
+echo export PATH=/usr/local/muview/${MUVIEW_VER}:'$PATH' >> /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /opt/Muview2-${MUVIEW_VER}

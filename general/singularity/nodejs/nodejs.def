@@ -1,0 +1,10 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+install_nodejs.sh    /opt
+
+%post
+cd /opt && \
+bash /opt/install_nodejs.sh && \
+rm -f /opt/install_nodejs.sh

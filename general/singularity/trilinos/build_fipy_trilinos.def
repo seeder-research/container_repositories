@@ -1,0 +1,64 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+12.18.1_fipy                  /opt
+install_fipy_trilinos.sh    /opt
+
+%post
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  suitesparse \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  boost \
+  parmetis \
+  glpk \
+  petsc \
+  petsc4py
+export PYTHONVER=2.7
+export TRILINOS_VER_MAJOR=12
+export TRILINOS_VER_MINOR=18
+export TRILINOS_VER_BUILD=1
+export TRILINOSVER=${TRILINOS_VER_MAJOR}.${TRILINOS_VER_MINOR}.${TRILINOS_VER_BUILD}
+export TRILINOS_FILE=trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD}.tar.gz
+export MPI_FLAGS="--allow-run-as-root;-mca;plm;isolated"
+export CC="mpicc"
+export CXX="mpicxx"
+export F77="mpifort"
+export OMPI_MCA_plm=isolated
+export OMPI_MCA_btl_vader_single_copy_mechanism=none
+export OMPI_MCA_rmaps_base_oversubscribe=yes
+export TRILINOS_SRC=/opt/Trilinos-trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD}
+export SEDSTRING="s/@pyver@/${PYTHONVER}/"
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+git clone https://github.com/seeder-research/Trilinos -b develop \
+  ./Trilinos-trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD} && \
+mkdir -p /opt/Trilinos-trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD}/builddir && \
+cd /opt/Trilinos-trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD}/builddir && \
+. /opt/install_fipy_trilinos.sh
+if [ ! -d /usr/local/modulefiles/dev/trilinos ]; then
+    mkdir -p /usr/local/modulefiles/dev/trilinos
+fi
+mv /opt/${TRILINOSVER}_fipy \
+  /usr/local/modulefiles/dev/trilinos/${TRILINOSVER} && \
+cd /usr/local/modulefiles/dev/trilinos && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${TRILINOSVER}" >> .version && \
+sed -e ${SEDSTRING} -i /usr/local/modulefiles/dev/trilinos/${TRILINOSVER} && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/Trilinos-trilinos-release-${TRILINOS_VER_MAJOR}-${TRILINOS_VER_MINOR}-${TRILINOS_VER_BUILD} \
+  /opt/install_fipy_trilinos.sh \
+  /opt/${TRILINOS_FILE} \
+  /opt/${TRILINOSVER}_fipy

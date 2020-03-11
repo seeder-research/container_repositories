@@ -1,0 +1,11 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export YEAR=2019
+export INTEL_REPO_LINK=https://yum.repos.intel.com/${YEAR}
+export KEYFILE=RPM-GPG-KEY-intel-psxe-runtime-${YEAR}
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/setup/intel-psxe-runtime-${YEAR}.repo && \
+rpm --import \
+  ${INTEL_REPO_LINK}/setup/${KEYFILE}

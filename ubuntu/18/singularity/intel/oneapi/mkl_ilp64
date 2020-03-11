@@ -1,0 +1,33 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              mkl
+set              version           latest
+set              base              /opt/intel/oneapi
+set              root              ${base}/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+if {[ is-loaded intel/mkl ]} {module unload intel/mkl}
+
+setenv	MKLROOT	${root}
+
+prepend-path      PATH              ${root}/bin/intel64
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64
+
+prepend-path	  CPATH		    ${root}/include/intel64/ilp64:${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include/intel64/ilp64:${root}/include
+
+prepend-path      PKG_CONFIG_PATH   ${root}/tools/pkgconfig
+
+prepend-path      NLSPATH           ${root}/lib/intel64/locale/%l_%t/%N

@@ -1,0 +1,48 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export PNETCDFVER=1.12.1
+module load \
+  openmpi \
+  hdf5
+export MPICC=mpicc
+export MPICXX=mpic++
+export MPIFC=mpifort
+export MPIF77=mpifort
+export MPIF90=mpifort
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/Parallel-NetCDF/PnetCDF/archive/checkpoint.${PNETCDFVER}.tar.gz && \
+tar xf /opt/checkpoint.${PNETCDFVER}.tar.gz && \
+cd /opt/PnetCDF-checkpoint.${PNETCDFVER} && \
+autoreconf -i && \
+./configure \
+  --prefix=/usr/local/pnetcdf/${PNETCDFVER} \
+  --enable-fortran=yes \
+  --enable-cxx=yes \
+  --enable-static=yes \
+  --enable-shared=yes && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/pnetcdf && \
+cd /usr/local/modulefiles/dev/pnetcdf && \
+sed -i "s/@pver@/${PNETCDFVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/pnetcdf/${PNETCDFVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PNETCDFVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/PnetCDF-checkpoint.${PNETCDFVER} \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/checkpoint.${PNETCDFVER}.tar.gz

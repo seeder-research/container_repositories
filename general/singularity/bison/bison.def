@@ -1,0 +1,27 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile     /opt
+
+%post
+export BISONVER=3.7.5
+cd /opt && \
+wget --no-check-certificate \
+  http://ftp.gnu.org/gnu/bison/bison-${BISONVER}.tar.xz && \
+tar xf /opt/bison-${BISONVER}.tar.xz && \
+cd /opt/bison-${BISONVER} && \
+./configure \
+  --prefix=/usr/local/bison/${BISONVER} \
+  --enable-threads=pth && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/bison && \
+sed -i "s/@pver@/${BISONVER}/g" /opt/modfile && \
+mv /opt/modfile /usr/local/modulefiles/dev/bison/${BISONVER} && \
+cd /usr/local/modulefiles/dev/bison && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${BISONVER}" >> .version && \
+rm -rf \
+  /opt/bison-${BISONVER} \
+  /opt/bison-${BISONVER}.tar.xz

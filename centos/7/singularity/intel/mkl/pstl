@@ -1,0 +1,26 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              name              psx2019u2
+set              comp_name         pstl
+set              version           @pver@
+set              base              /opt/${vendor}/compilers_and_libraries_${version}/linux
+set              root              ${base}/${comp_name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) Parallel STL (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) Parallel STL (version $version) to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64_2019]} {prereq intel/mkl_2019}
+if {![is-loaded intel/mkl_2019]} {prereq intel/mkl_ilp64_2019}
+
+setenv            PSTLROOT          ${root}
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include

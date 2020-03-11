@@ -1,0 +1,9 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export CONDA_DIR=/opt/conda
+${CONDA_DIR}/bin/conda install \
+  -c conda-forge \
+  paraview && \
+${CONDA_DIR}/bin/conda clean -yt

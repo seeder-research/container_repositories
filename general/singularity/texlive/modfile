@@ -1,0 +1,33 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              texlive
+set              version           @pver@
+set              root              /usr/local/$name/installdir
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+set               userhome          $::env(HOME)
+
+setenv            TEXDIR            ${root}
+
+prepend-path      PATH              ${root}/bin/x86_64-linux
+
+setenv            TEXMFCONFIG       ${userhome}/.texlive/texmf-config
+setenv            TEXMFHOME         ${userhome}/texmf
+setenv            TEXMFLOCAL        ${root}/../texmf-local
+setenv            TEXMFSYSCONFIG    ${root}/texmf-config
+setenv            TEXMFSYSCVAR      ${root}/texmf-VAR
+setenv            TEXMFVAR          ${userhome}/.texlive/texmf-var
+
+prepend-path      MANPATH           ${root}/texmf-dist/doc/man
+
+prepend-path      INFOPATH          ${root}/texmf-dist/doc/info
+

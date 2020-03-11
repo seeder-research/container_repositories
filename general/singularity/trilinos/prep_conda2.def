@@ -1,0 +1,68 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi
+export CONDA_DIR=/opt/conda
+export MPI4PY_VER=3.0.3
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+${CONDA_DIR}/bin/conda config \
+  --append channels \
+  conda-forge && \
+${CONDA_DIR}/bin/conda install -y \
+  python=2.7.16 && \
+${CONDA_DIR}/bin/pip install --upgrade pip && \
+${CONDA_DIR}/bin/conda install -y \
+  ipython \
+  jupyter \
+  jupyterlab \
+  numpy \
+  protobuf && \
+${CONDA_DIR}/bin/conda install -y \
+  bcolz \
+  cython \
+  git \
+  h5py \
+  joblib \
+  lxml \
+  matplotlib \
+  mkdocs \
+  multiprocess \
+  nose \
+  notebook \
+  pandas \
+  Pillow \
+  pydot \
+  pygpu \
+  PyQtGraph \
+  pyyaml \
+  scikit-fmm \
+  scikit-learn \
+  scipy \
+  setuptools \
+  six \
+  swig \
+  sympy \
+  vtk \
+  wheel && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/mpi4py/mpi4py/archive/${MPI4PY_VER}.tar.gz && \
+tar xf /opt/${MPI4PY_VER}.tar.gz && \
+cd /opt/mpi4py-${MPI4PY_VER} && \
+${CONDA_DIR}/bin/python setup.py install && \
+${CONDA_DIR}/bin/pip install \
+  cubature \
+  ray && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/mpi4py-${MPI4PY_VER} \
+  /opt/${MPI4PY_VER}.tar.gz

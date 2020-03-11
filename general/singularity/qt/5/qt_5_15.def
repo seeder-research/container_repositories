@@ -1,0 +1,64 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+module load \
+  bison \
+  flex
+export NUMTHREADS=$(nproc)
+if [ $NUMTHREADS -gt 8 ]; then
+  export NUMTHREADS=8
+fi
+export QT_VER_MAJOR=5
+export QT_VER_MINOR=15
+export QT_VER_REV=2
+export QT_VER=${QT_VER_MAJOR}.${QT_VER_MINOR}.${QT_VER_REV}
+export SEDSTR="s/@pver@/${QT_VER}/g"
+mkdir -p /usr/local/modulefiles/dev/qt && \
+cd /usr/local/modulefiles/dev/qt && \
+sed -i ${SEDSTR} /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/qt/${QT_VER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/qt/.version && \
+echo set ModulesVersion "${QT_VER}" >> /usr/local/modulefiles/dev/qt/.version && \
+module load qt/${QT_VER} && \
+cd /opt && \
+git clone https://code.qt.io/qt/qt5.git -b v${QT_VER} \
+  qt-src && \
+cd /opt/qt-src && \
+perl init-repository \
+  --module-subset=essential,addon,deprecated,-qtandroidextras,-qtdocgallery,-qtlocation,-qtmacextras,-qtpurchasing,-qtsensors,-qtwebengine,-qtwinextras && \
+mkdir /opt/qt-build && \
+cd /opt/qt-build && \
+sed -i 's@thread/qmutex_linux.cpp@@' /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
+sed -i '/qdbusmarshaller/d' /opt/qt-src/qtbase/src/dbus/dbus.pro && \
+/opt/qt-src/configure \
+  -prefix /usr/local/qt/${QT_VER} \
+  -confirm-license \
+  -opensource \
+  -release \
+  -silent \
+  -nomake examples \
+  -nomake tests \
+  -no-rpath \
+  -bundled-xcb-xinput \
+  -xkbcommon \
+  -skip qtandroidextras \
+  -skip qtconnectivity \
+  -skip qtgamepad \
+  -skip qtlocation \
+  -skip qtmacextras \
+  -skip qtpurchasing \
+  -skip qtsensors \
+  -skip qtwayland \
+  -skip qtwebengine \
+  -skip qtwinextras && \
+make -j${NUMTHREADS} && \
+make install && \
+cd /opt && \
+rm -rf \
+  /opt/qt*

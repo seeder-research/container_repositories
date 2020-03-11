@@ -1,0 +1,26 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              bison
+set               version           @pver@
+set               root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+prepend-path      PATH              $root/bin
+
+prepend-path      LD_LIBRARY_PATH   $root/lib
+prepend-path      LIBRARY_PATH      $root/lib
+prepend-path      LD_RUN_PATH       $root/lib
+
+prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      INFOPATH          ${root}/share/info
+
+prepend-path      ACLOCAL_PATH      ${root}/share/aclocal

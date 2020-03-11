@@ -1,0 +1,54 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              trilinos
+set              version           12.14.1
+set              root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name library (version $version) to your environment variables"
+}
+
+module-whatis "adds $name library (version $version) to your environment variables."
+
+prereq        openmpi
+prereq        intel/mkl
+prereq        suitesparse
+
+setenv            LIBTRILINOS_ROOT  ${root}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+
+prepend-path	  CPATH             ${root}/include
+prepend-path	  INCLUDE_PATH      ${root}/include
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Amesos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/AztecOO
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Belos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Epetra
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/EpetraExt
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Ifpack
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Isorropia
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/NOX
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Sacado
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/ShyLU
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/ShyLUCore
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Teuchos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosComm
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosCore
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosNumerics
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosParameterList
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosRemainder
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/tribits
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Trilinos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TrilinosCouplings
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TrilinosSS
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Triutils
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Zoltan

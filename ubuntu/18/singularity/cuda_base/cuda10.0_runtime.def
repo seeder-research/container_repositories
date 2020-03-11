@@ -1,0 +1,9 @@
+BootStrap: docker
+From: nvidia/cuda:10.0-cudnn7-runtime-ubuntu18.04
+
+%files
+90-environment.sh      /opt
+
+%post
+rm -f /.singularity.d/env/90-environment.sh && \
+mv /opt/90-environment.sh /.singularity.d/env/90-environment.sh

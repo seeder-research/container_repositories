@@ -1,0 +1,105 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              trilinos
+set              version           12.18.1
+set              root              /usr/local/${name}/${version}
+set              pyroot            /usr/local/py${name}/${version}
+set              pyver             @pyver@
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name library (version $version) to your environment variables"
+}
+
+module-whatis "adds $name library (version $version) to your environment variables."
+
+prereq        openmpi
+prereq        intel/mkl
+prereq        suitesparse
+prereq        parmetis
+prereq        petsc4py
+
+setenv            LIBTRILINOS_ROOT  ${root}
+setenv            PYTRILINOS_ROOT   ${pyroot}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path      LD_LIBRARY_PATH   /opt/conda/lib/python${pyver}/site-packages/PyTrilinos
+prepend-path      LIBRARY_PATH      /opt/conda/lib/python${pyver}/site-packages/PyTrilinos
+prepend-path      LD_RUN_PATH       /opt/conda/lib/python${pyver}/site-packages/PyTrilinos
+
+prepend-path	  CPATH             ${root}/include
+prepend-path	  INCLUDE_PATH      ${root}/include
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Amesos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Anasazi
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/AztecOO
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Domi
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Epetra
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/EpetraExt
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Galeri
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Gtest
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Ifpack
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Isorropia
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Kokkos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/KokkosAlgorithms
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/KokkosContainers
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/KokkosCore
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/KokkosKernels
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Komplex
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/ML
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/NOX
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Pliris
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/PyTrilinos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/SEACAS
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/SEACASExodus
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/SEACASIoss
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/SEACASNemesis
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STK
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKBalance
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKDoc_tests
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKExprEval
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKIO
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKMath
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKMesh
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKNGP
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKNGP_TEST
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKSearch
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKSearchUtil
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKSimd
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKTools
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKTopology
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKTransfer
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKUnit_test_utils
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKUnit_test
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/STKUtil
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Shards
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Teuchos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosComm
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosCore
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosKokkosComm
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosKokkosCompat
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosNumerics
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosParameterList
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosParser
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TeuchosRemainder
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Tpetra
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TpetraClassic
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TpetraCore
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TpetraTSQR
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Trilinos
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/TrilinosSS
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Triutils
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Xpetra
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Zoltan
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/Zoltan2
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/tribits
+
+prepend-path      PYTHONPATH        ${pyroot}/lib/python${pyver}/site-packages

@@ -1,0 +1,46 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+12.12.1_xyce                           /opt
+install_xyce_trilinos.sh               /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  intel/mkl \
+  bison \
+  flex \
+  adms \
+  metis \
+  suitesparse
+export TRILINOSVER=12.12.1
+export TRILINOS_FILE=trilinos-release-12-12-1.tar.gz
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/trilinos/Trilinos/archive/${TRILINOS_FILE} && \
+tar xf /opt/${TRILINOS_FILE} && \
+mkdir -p /opt/Trilinos-trilinos-release-12-12-1/builddir && \
+cd /opt/Trilinos-trilinos-release-12-12-1/builddir && \
+. /opt/install_xyce_trilinos.sh
+if [ ! -d /usr/local/modulefiles/dev/trilinos ]; then
+    mkdir -p /usr/local/modulefiles/dev/trilinos
+fi
+mv /opt/${TRILINOSVER}_xyce \
+  /usr/local/modulefiles/dev/trilinos/${TRILINOSVER} && \
+cd /usr/local/modulefiles/dev/trilinos && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${TRILINOSVER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/Trilinos-trilinos-release-12-12-1 \
+  /opt/install_xyce_trilinos.sh \
+  /opt/${TRILINOS_FILE} \
+  /opt/${TRILINOSVER}_xyce

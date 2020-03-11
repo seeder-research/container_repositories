@@ -1,0 +1,22 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              mklblas
+set              version           
+set              root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prepend-path      LB_LIBRARY_PATH    ${root}/lib/intel64
+prepend-path      LIBRARY_PATH       ${root}/lib/intel64
+prepend-path      LB_RUN_PATH        ${root}/lib/intel64
+
+prepend-path      CPATH              ${root}/include/intel64/lp64
+prepend-path      INCLUDE_PATH       ${root}/include/intel64/lp64

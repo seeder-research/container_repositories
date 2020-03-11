@@ -1,0 +1,20 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              petsc4py
+set              version           @pver@
+set              pyver             @pyver@
+set              root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name library (version $version) to your environment variables"
+}
+
+module-whatis "adds $name library (version $version) to your environment variables."
+
+prereq        petsc
+
+prepend-path      PYTHONPATH        ${root}/lib/python${pyver}/site-packages

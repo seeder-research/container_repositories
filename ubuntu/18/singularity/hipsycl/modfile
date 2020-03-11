@@ -1,0 +1,24 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set               name              hipSYCL
+set               version           @pver@
+set               root              /opt/$name
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} (version ${version}) path to your environment,"
+}
+
+module-whatis "adds ${name} (version ${version}) to your environment."
+
+prepend-path      PATH              $root/bin
+
+prepend-path      INCLUDE_PATH      $root/include
+prepend-path      CPATH             $root/include
+
+prepend-path      LD_LIBRARY_PATH   $root/lib
+prepend-path      LIBRARY_PATH      $root/lib
+prepend-path      LD_RUN_PATH       $root/lib

@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+module load \
+  openmpi \
+  intel/mkl \
+  boost \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  metis \
+  parmetis \
+  suitesparse \
+  hypre \
+  scotch \
+  petsc \
+  petsc4py \
+  slepc
+export SLEPC_DIR=${SLEPC_ROOT}
+export SLEPC_VER=3.13.0
+export PYVER=3.8
+export SEDSTR='s/@pyver@/'${PYVER}'/'
+export PETSC_DIR=${PETSC_ROOT}
+export CONDA_DIR=/opt/conda
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+git clone https://gitlab.com/slepc/slepc4py.git \
+  -b ${SLEPC_VER} && \
+cd /opt/slepc4py && \
+${CONDA_DIR}/bin/python \
+  setup.py \
+  install \
+  --prefix=/usr/local/slepc4py/${SLEPC_VER} && \
+mkdir -p /usr/local/modulefiles/dev/slepc4py && \
+sed -i "s/@pver@/${SLEPC_VER}/g" /opt/modfile && \
+sed -e ${SEDSTR} -i /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/slepc4py/${SLEPC_VER} && \
+cd /usr/local/modulefiles/dev/slepc4py && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SLEPC_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/slepc4py

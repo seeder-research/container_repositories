@@ -1,0 +1,23 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export CUBVER=1.8.0
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/NVlabs/cub/archive/v${CUBVER}.tar.gz && \
+mkdir -p /usr/local/cub && \
+cd /usr/local/cub && \
+tar xf /opt/v${CUBVER}.tar.gz
+mv cub-${CUBVER} \
+  /usr/local/cub/${CUBVER} && \
+mkdir -p /usr/local/modulefiles/dev/cub && \
+sed -i "s/@pver@/${CUBVER}/g" /opt/modfile && \
+mv /opt/modfile /usr/local/modulefiles/dev/cub/${CUBVER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/cub/.version && \
+echo set ModulesVersion "${CUBVER}" >> /usr/local/modulefiles/dev/cub/.version && \
+rm -rf \
+  /opt/v${CUBVER}.tar.gz

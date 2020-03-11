@@ -1,0 +1,73 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile           /opt
+combblas.patch    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export COMBBLASVER_MAJ=1
+export COMBBLASVER_MIN=6
+export COMBBLASVER_BLD=2
+export SUPERLU_VER=6.3.1
+export LIBNAME=superlu_dist
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  parmetis \
+  combblas
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}.tgz && \
+tar xf /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}.tgz && \
+wget --no-check-certificate \
+  https://github.com/xiaoyeli/${LIBNAME}/archive/v${SUPERLU_VER}.tar.gz && \
+tar xf /opt/v${SUPERLU_VER}.tar.gz && \
+patch -p0 < /opt/combblas.patch && \
+mv \
+  /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}/BipartiteMatchings \
+  /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}/include/CombBLAS/BipartiteMatchings && \
+mkdir /opt/${LIBNAME}-${SUPERLU_VER}/build && \
+cd /opt/${LIBNAME}-${SUPERLU_VER}/build && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/${LIBNAME}/${SUPERLU_VER} \
+  -Denable_double=on \
+  -Denable_complex16=on \
+  -DTPL_PARMETIS_INCLUDE_DIRS="${PARMETIS_ROOT}/include;${METIS_ROOT}/include" \
+  -DTPL_PARMETIS_LIBRARIES="${PARMETIS_ROOT}/lib/libparmetis.a;${METIS_ROOT}/lib/libmetis.a" \
+  -DTPL_ENABLE_COMBBLASLIB=ON \
+  -DTPL_COMBBLAS_INCLUDE_DIRS="${COMBBLAS_ROOT}/include;/opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}/include/CombBLAS/BipartiteMatchings" \
+  -DTPL_COMBBLAS_LIBRARIES="${COMBBLAS_ROOT}/lib/libCombBLAS.a" \
+  -DCMAKE_C_FLAGS="-std=c11 -g -DPRNTlevel=0 -DDEBUGlevel=0 -fPIC" \
+  -DCMAKE_C_COMPILER=mpicc \
+  -DCMAKE_CXX_COMPILER=mpicxx \
+  -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC" \
+  -DTPL_ENABLE_BLASLIB=OFF \
+  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_STATIC_LIBS=ON \
+  -Denable_tests=OFF \
+  -Denable_examples=OFF \
+  -Denable_fortran=OFF \
+  /opt/${LIBNAME}-${SUPERLU_VER} && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/${LIBNAME} && \
+sed -i "s/@EXT@/_DIST/g" /opt/modfile && \
+sed -i "s/@pname@/${LIBNAME}/g" /opt/modfile && \
+sed -i "s/@pver@/${SUPERLU_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/${LIBNAME}/${SUPERLU_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SUPERLU_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/CombBLAS* \
+  /opt/superlu*

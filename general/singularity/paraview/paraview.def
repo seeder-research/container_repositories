@@ -1,0 +1,69 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  boost \
+  ffmpeg \
+  openmpi \
+  hdf5 \
+  qt
+export PARAVIEW_VER=5.9.1
+export PYVER=3.8
+export QTVER=5.15.2
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+git clone https://gitlab.kitware.com/paraview/paraview.git -b v${PARAVIEW_VER} && \
+cd /opt/paraview && \
+git submodule \
+  update --init \
+  --recursive && \
+mkdir /opt/paraview/builddir && \
+cd /opt/paraview/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/paraview/${PARAVIEW_VER} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DINSTALL_CMAKE_PACKAGE_MODULE=ON \
+  -DINSTALL_PKG_CONFIG_MODULE=ON \
+  -DPARAVIEW_BUILD_SHARED_LIBS=ON \
+  -DPARAVIEW_USE_MPI=ON \
+  -DPARAVIEW_ENABLE_PYTHON=ON \
+  -DPython3_EXECUTABLE=/opt/conda/bin/python \
+  -DQt5_DIR=${QT_DIR}/lib/cmake/Qt5 \
+  -DPARAVIEW_BUILD_QT_GUI=ON \
+  -DPARAVIEW_QT_VERSION=${QTVER} \
+  -DPARAVIEW_ENABLE_XDMF2=ON \
+  -DPARAVIEW_ENABLE_XDMF3=ON \
+  -DPARAVIEW_ENABLE_FFMPEG=ON \
+  -DPARAVIEW_ENABLE_WEB=ON \
+  -DVTKm_ENABLE_MPI=ON \
+  -DBoost_INCLUDE_DIR=${LIBBOOST_ROOT}/include \
+  -DFFMPEG_ROOT=${FFMPEG_ROOT} \
+  /opt/paraview && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/paraview && \
+cd /usr/local/modulefiles/paraview && \
+sed -i "s/@pver@/${PARAVIEW_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/paraview/${PARAVIEW_VER} && \
+echo "#%Module" > /usr/local/modulefiles/paraview/.version && \
+echo set ModulesVersion "${PARAVIEW_VER}" >> /usr/local/modulefiles/paraview/.version && \
+echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh && \
+echo "export MODULEPATH=/usr/local/modulefiles:"'$'"MODULEPATH" >> /.singularity.d/env/90-environment.sh && \
+echo "module load \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  ffmpeg \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  qt \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  paraview" >> /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/paraview

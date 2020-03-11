@@ -1,0 +1,57 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+yum upgrade -y
+yum groupinstall -y \
+  "Minimal Install" \
+  "Compute Node" \
+  "Development and Creative Workstation" \
+  "Development Tools" \
+  "Compatibility Libraries" \
+  "Hardware Support" \
+  "Scientific Support"
+yum install -y \
+  autoconf \
+  automake \
+  centos-release-scl \
+  environment-modules \
+  expat-devel \
+  expat \
+  g++ \
+  gcc \
+  gfortran \
+  git \
+  hwloc-devel \
+  libedit-devel \
+  libedit \
+  libical-devel \
+  libpciaccess-devel \
+  libpciaccess \
+  libtool \
+  libXext \
+  libXft \
+  libX11-devel \
+  libXt-devel \
+  make \
+  most \
+  nano \
+  ncurses-devel \
+  openssl-devel \
+  perl \
+  postgresql-contrib \
+  postgresql-devel \
+  postgresql-server \
+  python-devel \
+  python3-devel \
+  python3 \
+  rpm-build \
+  swig \
+  tcl-devel \
+  tcl \
+  tk-devel \
+  tk \
+  tkcvs \
+  wget \
+  which

@@ -1,0 +1,133 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              rocm
+set              version           @pver@
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ROCm version ${version} to your environment variables,"
+}
+
+module-whatis "adds ROCm version ${version} to your environment variables."
+
+set               root              /opt/${name}
+
+prepend-path      ROCMROOT          ${root}
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/AMDDeviceLibs
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/amd_comgr
+prepend-path      CMAKE_PREFIX_PATH ${root}/lib/cmake/hsakmt
+prepend-path      CMAKE_PREFIX_PATH ${root}/share/rocm/cmake
+
+######## ROCR Runtime ########
+setenv            HSA_PATH          ${root}/hsa
+
+prepend-path      LD_LIBRARY_PATH   ${root}/hsa/lib
+prepend-path      LIBRARY_PATH      ${root}/hsa/lib
+prepend-path      LD_RUN_PATH       ${root}/hsa/lib
+prepend-path      HSA_LIBRARY       ${root}/lib/libhsa-runtime64.so
+
+prepend-path	  CPATH		    ${root}/hsa/include
+prepend-path	  CPATH		    ${root}/hsa/include/hsa
+prepend-path	  INCLUDE_PATH	    ${root}/hsa/include
+prepend-path	  INCLUDE_PATH	    ${root}/hsa/include/hsa
+prepend-path      HSA_HEADER        ${root}/hsa/include
+
+prepend-path      PKG_CONFIG_PATH   ${root}/share/pkgconfig
+
+######## ROCm SMI ########
+prepend-path      CPATH              ${root}/rocm_smi/include
+prepend-path      INCLUDE_PATH       ${root}/rocm_smi/include
+
+prepend-path      LD_LIBRARY_PATH    ${root}/rocm_smi/lib
+prepend-path      LIBRARY_PATH       ${root}/rocm_smi/lib
+prepend-path      LD_RUN_PATH        ${root}/rocm_smi/lib
+
+######## ROC OpenCL ########
+prepend-path	  PATH		    ${root}/opencl/bin/x86_64
+
+prepend-path	  CPATH		    ${root}/opencl/include
+prepend-path	  INCLUDE_PATH	    ${root}/opencl/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/opencl/lib/x86_64
+prepend-path      LIBRARY_PATH      ${root}/opencl/lib/x86_64
+prepend-path      LD_RUN_PATH       ${root}/opencl/lib/x86_64
+
+######## HCC ########
+setenv            HCC_HOME          ${root}/hcc
+
+prepend-path      PATH              ${root}/hcc/bin
+prepend-path      hcc_DIR           ${root}/hcc/lib/cmake/hcc
+
+prepend-path	  CPATH		    ${root}/hcc/include
+prepend-path	  INCLUDE_PATH	    ${root}/hcc/include
+
+prepend-path	  LD_LIBRARY_PATH   ${root}/hcc/lib
+prepend-path	  LIBRARY_PATH      ${root}/hcc/lib
+prepend-path	  LD_RUN_PATH       ${root}/hcc/lib
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/hcc/lib/cmake/hcc
+
+prepend-path      MANPATH           ${root}/hcc/share/man
+
+######## HIP ########
+setenv            HIP_PATH          ${root}/hip
+
+prepend-path      PATH              ${root}/hip/bin
+prepend-path      hip_DIR           ${root}/hip/lib/cmake/hip
+
+prepend-path	  CPATH		    ${root}/hip/include
+prepend-path	  INCLUDE_PATH	    ${root}/hip/include
+
+prepend-path	  LD_LIBRARY_PATH   ${root}/hip/lib
+prepend-path	  LIBRARY_PATH      ${root}/hip/lib
+prepend-path	  LD_RUN_PATH       ${root}/hip/lib
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/hip/cmake
+prepend-path      CMAKE_PREFIX_PATH ${root}/hip/lib/cmake/hip
+
+######## ROCBLAS ########
+setenv            ROCBLAS_ROOT      ${root}/rocblas
+
+prepend-path      CPATH             ${root}/rocblas/include
+prepend-path      INCLUDE_PATH      ${root}/rocblas/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/rocblas/lib
+prepend-path      LIBRARY_PATH      ${root}/rocblas/lib
+prepend-path      LD_RUN_PATH       ${root}/rocblas/lib
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/rocblas/lib/cmake/rocblas
+
+######## ROCSPARSE ########
+setenv            ROCSPARSE_ROOT    ${root}/rocsparse
+
+prepend-path      CPATH             ${root}/rocsparse/include
+prepend-path      INCLUDE_PATH      ${root}/rocsparse/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/rocsparse/lib
+prepend-path      LIBRARY_PATH      ${root}/rocsparse/lib
+prepend-path      LD_RUN_PATH       ${root}/rocsparse/lib
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/rocsparse/lib/cmake/rocsparse
+
+######## ROCFFT ########
+setenv            ROCFFT_ROOT      ${root}/rocfft
+
+prepend-path      CPATH             ${root}/rocfft/include
+prepend-path      INCLUDE_PATH      ${root}/rocfft/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/rocfft/lib
+prepend-path      LIBRARY_PATH      ${root}/rocfft/lib
+prepend-path      LD_RUN_PATH       ${root}/rocfft/lib
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/rocfft/lib/cmake/rocfft

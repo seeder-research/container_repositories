@@ -1,0 +1,30 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+export HIPSYCL_VER=0.9.1
+mkdir -p /usr/local/tmpHipSycl && \
+cd /usr/local/tmpHipSycl && \
+git clone https://github.com/illuhad/hipSYCL.git -b v${HIPSYCL_VER} ./hipSYCL && \
+cd /usr/local/tmpHipSycl/hipSYCL/install/scripts/add-hipsycl-repo && \
+. ./ubuntu-18.04.sh && \
+apt-get update && \
+apt-get upgrade -y && \
+apt-get install -y \
+  hipsycl-full-nightly && \
+mkdir -p /usr/local/modulefiles/dev/hipsycl && \
+sed -i "s/@pver@/${HIPSYCL_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/hipsycl/${HIPSYCL_VER} && \
+cd /usr/local/modulefiles/dev/hipsycl && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${HIPSYCL_VER}" >> .version && \
+cd /opt/hipSYCL && \
+ln -s /usr/local/cuda /opt/hipSYCL/cuda && \
+rm -rf \
+  /var/lib/apt/lists/*

@@ -1,0 +1,26 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+r31      /opt
+
+%post
+apt update && \
+apt-get install -y \
+  feedgnuplot \
+  gawk \
+  geda \
+  gnuplot \
+  gnuplot-doc \
+  gnuplot-data \
+  gnuplot-x11 \
+  libedit-dev \
+  libedit2 \
+  libeditline-dev \
+  libeditline0 \
+  libxaw7 \
+  libxaw7-dev \
+  xserver-xorg \
+  xserver-xorg-dev && \
+rm -rf \
+  /var/lib/apt/lists/*

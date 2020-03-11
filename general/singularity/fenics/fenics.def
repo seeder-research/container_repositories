@@ -1,0 +1,193 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+dolfin_mod    /opt
+dolfin.patch    /opt
+mshr_mod      /opt
+
+%post
+. /etc/profile
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  suitesparse \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  parmetis \
+  glpk \
+  scotch \
+  hypre \
+  petsc \
+  fltk \
+  freetype \
+  occt \
+  gmsh \
+  boost \
+  slepc \
+  pybind11 \
+  petsc4py \
+  slepc4py \
+  sundials
+export CONDA_DIR=/opt/conda
+export CONDA_DIR=/opt/conda
+export FENICS_VER=2019.1.0
+export PYBIND11_VER=2.5.0
+export BOOST_ROOT=${LIBBOOST_ROOT}
+export BOOST_INCLUDEDIR=${LIBBOOST_ROOT}/include
+export BOOST_LIBRARYDIR=${LIBBOOST_ROOT}/lib
+export EIGEN_DIR=${SUITESPARSE_ROOT}
+export EIGEN3_ROOT=${SUITESPARSE_ROOT}
+export EIGEN3_ROOT_DIR=${SUITESPARSE_ROOT}
+export PETSC_DIR=${PETSC_ROOT}
+export PETSC_ARCH=""
+export SUNDIALS_DIR=${SUNDIALS_ROOT}
+export SCOTCH_DIR=${SCOTCH_ROOT}
+export SLEPC_DIR=${SLEPC_ROOT}
+export CXXFLAGS="-I${PETSC_ROOT}/include"
+export LDFLAGS="-L${PETSC_ROOT}/lib -lpetsc"
+export PYVER=3.8
+export SEDSTR='s/@pyver@/'${PYVER}'/'
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+${CONDA_DIR}/bin/conda config --add \
+  channels anaconda && \
+${CONDA_DIR}/bin/conda install -y \
+  cython \
+  meshio \
+  numpy \
+  pkgconfig \
+  scipy \
+  sympy && \
+${CONDA_DIR}/bin/pip install pygmsh && \
+${CONDA_DIR}/bin/pip install -e \
+  git+https://github.com/FEniCS/fiat@${FENICS_VER}#egg=fenics-fiat && \
+${CONDA_DIR}/bin/pip install -e \
+  git+https://bitbucket.org/fenics-project/dijitso.git@${FENICS_VER}#egg=fenics-dijitso && \
+${CONDA_DIR}/bin/pip install -e \
+  git+https://github.com/FEniCS/ufl@${FENICS_VER}#egg=fenics-ufl && \
+${CONDA_DIR}/bin/pip install -e \
+  git+https://bitbucket.org/fenics-project/ffc.git@${FENICS_VER}#egg=fenics-ffc && \
+export FENICS_VERSION=$(${CONDA_DIR}/bin/python -c "import ffc; print(ffc.__version__)")
+cd /opt && \
+git clone https://bitbucket.org/fenics-project/dolfin -b ${FENICS_VERSION}.post0 && \
+cd /opt/dolfin && \
+patch -p0 < /opt/dolfin.patch && \
+mkdir -p /opt/dolfin-build && \
+cd /opt/dolfin-build && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/dolfin/${FENICS_VER} \
+  -DAMD_DIR=${SUITESPARSE_ROOT} \
+  -DBLA_VENDOR="Intel10_64lp_seq" \
+  -DBOOST_ROOT=${LIBBOOST_ROOT} \
+  -DCHOLMOD_DIR=${SUITESPARSE_ROOT} \
+  -DEIGEN3_INCLUDE_DIR=${SUITESPARSE_ROOT}/include \
+  -DPARMETIS_DIR=${PARMETIS_ROOT} \
+  -DSCOTCH_DIR=${SCOTCH_ROOT} \
+  -DUMFPACK_DIR=${SUITESPARSE_ROOT} \
+  -DDOLFIN_ENABLE_MPI=ON \
+  -DDOLFIN_ENABLE_PETSC=ON \
+  -DDOLFIN_ENABLE_PARMETIS=ON \
+  -DDOLFIN_ENABLE_SCOTCH=ON \
+  -DDOLFIN_ENABLE_SLEPC=ON \
+  -DDOLFIN_ENABLE_UMFPACK=ON \
+  -DDOLFIN_ENABLE_CHOLMOD=ON \
+  -DDOLFIN_ENABLE_SUNDIALS=ON \
+  -DDOLFIN_ENABLE_HDF5=ON \
+  -DDOLFIN_SKIP_BUILD_TESTS=ON \
+  /opt/dolfin && \
+make -j$(nproc) && \
+make install && \
+cd /opt/dolfin/python && \
+export PYBIND11_DIR=/usr/local/pybind11/${PYBIND11_VER}/share/cmake/pybind11 && \
+export DOLFIN_DIR=/usr/local/dolfin/${FENICS_VER}/share/dolfin/cmake && \
+sed -e 's/pybind11==/pybind11>=/' -i /opt/dolfin/python/setup.py && \
+${CONDA_DIR}/bin/python \
+  setup.py \
+  install \
+  --prefix=/usr/local/dolfin/${FENICS_VER} && \
+mkdir -p /usr/local/modulefiles/dolfin && \
+cd /usr/local/modulefiles/dolfin && \
+sed -i "s/@pver@/${FENICS_VER}/g" /opt/dolfin_mod && \
+sed -e ${SEDSTR} -i /opt/dolfin_mod && \
+mv /opt/dolfin_mod \
+  /usr/local/modulefiles/dolfin/${FENICS_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FENICS_VER}" >> .version && \
+module load \
+  dolfin && \
+cd /opt && \
+git clone https://bitbucket.org/fenics-project/mshr -b ${FENICS_VERSION} && \
+mkdir -p /opt/mshr-build && \
+cd /opt/mshr-build && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/mshr/${FENICS_VER} \
+  -DBLA_VENDOR="Intel10_64lp_seq" \
+  -DBOOST_ROOT=${LIBBOOST_ROOT} \
+  -DEIGEN3_INCLUDE_DIR=${SUITESPARSE_ROOT}/include \
+  /opt/mshr && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/mshr && \
+cd /usr/local/modulefiles/mshr && \
+sed -i "s/@pver@/${FENICS_VER}/g" /opt/mshr_mod && \
+sed -e ${SEDSTR} -i /opt/mshr_mod && \
+mv /opt/mshr_mod \
+  /usr/local/modulefiles/mshr/${FENICS_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FENICS_VER}" >> .version && \
+module load \
+  mshr && \
+cd /opt/mshr/python && \
+export PYBIND11_DIR=PYBIND11_ROOT && \
+${CONDA_DIR}/bin/python \
+  setup.py \
+  install \
+  --prefix=/usr/local/mshr/${FENICS_VER} && \
+echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh && \
+echo ". /etc/profile.d/conda.sh" >> /.singularity.d/env/90-environment.sh && \
+echo "module load \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  pbspro \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  intel/mkl \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  hdf5 \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  boost \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  metis \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  parmetis \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  suitesparse \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  pnetcdf \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  netcdf \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  hypre \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  scotch \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  mumps \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  combblas \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  superlu_dist \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  eigen \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  petsc \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  petsc4py \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  pybind11 \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  slepc \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  slepc4py \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  sundials \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  fltk \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  freetype \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  occt \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  gmsh \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  dolfin \\" >> /.singularity.d/env/90-environment.sh && \
+echo "  mshr" >> /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/dolfin-build \
+  /opt/dolfin \
+  /opt/mshr-build \
+  /opt/mshr

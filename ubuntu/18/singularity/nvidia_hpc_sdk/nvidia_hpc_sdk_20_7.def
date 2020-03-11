@@ -1,0 +1,19 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export VER_MAJOR=20
+export VER_MINOR=7
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+cd /opt && \
+wget --no-check-certificate \
+  https://developer.download.nvidia.com/hpc-sdk/${VER_MAJOR}.${VER_MINOR}/nvhpc-${VER_MAJOR}-${VER_MINOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb \
+  https://developer.download.nvidia.com/hpc-sdk/${VER_MAJOR}.${VER_MINOR}/nvhpc-20${VER_MAJOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb && \
+apt-get -y install \
+  /opt/nvhpc-${VER_MAJOR}-${VER_MINOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb \
+  /opt/nvhpc-20${VER_MAJOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb && \
+rm -rf \
+  /opt/nvhpc-${VER_MAJOR}-${VER_MINOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb \
+  /opt/nvhpc-20${VER_MAJOR}_${VER_MAJOR}.${VER_MINOR}_amd64.deb \
+  /var/lib/apt/lists/*

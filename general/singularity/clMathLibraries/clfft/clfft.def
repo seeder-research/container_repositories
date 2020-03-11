@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /.singularity.d/env/90-environment.sh
+export CLFFT_VER=2.15.0b
+cd /opt && \
+git clone https://github.com/seeder-research/clFFT.git -b develop && \
+mkdir /opt/clFFT/build && \
+cd /opt/clFFT/build && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/clfft/${CLFFT_VER} \
+  -DBUILD_CALLBACK_CLIENT=OFF \
+  -DBUILD_CLIENT=OFF \
+  -DBUILD_EXAMPLES=OFF \
+  -DBUILD_TEST=OFF \
+  -DBUILD_LOADLIBRARIES=ON \
+  -DBUILD_RUNTIME=ON \
+  -DBUILD_SHARED_LIBS=ON \
+  ../src && \
+make all && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/clfft && \
+sed -i "s/@pver@/${CLFFT_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/clfft/${CLFFT_VER} && \
+cd /usr/local/modulefiles/dev/clfft && \
+echo "#%Module" > /usr/local/modulefiles/dev/clfft/.version && \
+echo set ModulesVersion "${CLFFT_VER}" >> /usr/local/modulefiles/dev/clfft/.version
+rm -rf \
+  /opt/clFFT

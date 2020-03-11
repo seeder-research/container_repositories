@@ -1,0 +1,52 @@
+BootStrap: localimage
+From: pre.sif
+
+%appenv ngspice
+. /etc/profile
+module load ngspice
+
+%appenv xyce
+. /etc/profile
+module load xyce
+
+%post
+add-apt-repository --yes ppa:js-reynaud/kicad-5.1 && \
+apt update && \
+apt install -y --no-install-recommends \
+  kicad \
+  kicad-libraries \
+  kicad-symbols \
+  kicad-templates \
+  kicad-footprints \
+  kicad-packages3d \
+  kicad-doc-en \
+  kicad-demo && \
+apt install -y \
+  gwave \
+  gtkwave \
+  ipython3 \
+  ipython3-qtconsole \
+  magic \
+  python3-ipython \
+  python3-ipython-genutils \
+  python3-matplotlib \
+  python3-matplotlib-venn \
+  python3-numpy \
+  python3-pandas \
+  python3-pandas-lib \
+  python3-pip \
+  python3-scipy \
+  python3-sympy && \
+apt autoclean -y && \
+apt autoremove -y && \
+pip3 install --upgrade pip && \
+pip3 install PySpice && \
+pip3 install --upgrade matplotlib && \
+pip3 install --upgrade numpy && \
+pip3 install --upgrade scipy && \
+pip3 install --upgrade sympy && \
+pip3 install --upgrade pandas && \
+pip3 install bokeh && \
+pip3 install DeCiDa && \
+rm -rf \
+  /var/lib/apt/lists/*

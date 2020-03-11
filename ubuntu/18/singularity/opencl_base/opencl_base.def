@@ -1,0 +1,17 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /.singularity.d/env/90-environment.sh
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+cd /opt && \
+apt update && \
+apt-get install -y --no-install-recommends \
+  mesa-opencl-icd \
+  ocl-icd-libopencl1 \
+  opencl-c-headers \
+  opencl-clhpp-headers \
+  opencl-headers && \
+rm -rf \
+  /var/lib/apt/lists/*

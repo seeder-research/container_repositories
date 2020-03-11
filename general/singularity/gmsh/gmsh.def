@@ -1,0 +1,60 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load openmpi \
+  intel/mkl \
+  fltk \
+  occt
+export GMSH_VER=4.5.6
+export FLTK_VER=1.3.5
+export OCCT_VER=7.4.0
+export MPICC=mpicc
+export MPICXX=mpic++
+export MPIFC=mpifort
+export MPIF77=mpifort
+export MPIF90=mpifort
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://gmsh.info/src/gmsh-${GMSH_VER}-source.tgz && \
+tar xf /opt/gmsh-${GMSH_VER}-source.tgz && \
+mkdir -p /opt/gmsh-builddir && \
+cd /opt/gmsh-builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/gmsh/${GMSH_VER} \
+  -DCMAKE_PREFIX_PATH="/usr/local/fltk/${FLTK_VER};/usr/local/occt/${OCCT_VER}" \
+  -DENABLE_3M=ON \
+  -DENABLE_BLAS_LAPACK=ON \
+  -DBLAS_LAPACK_LIBRARIES="-L${MKLROOT}/lib/intel64 -lmkl_blas95_lp64 -lmkl_lapack95_lp64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core" \
+  -DENABLE_BUILD_DYNAMIC=ON \
+  -DENABLE_GRAPHICS=ON \
+  -DENABLE_NUMPY=ON \
+  -DENABLE_PETSC4PY=ON \
+  -DENABLE_PETSC=ON \
+  -DENABLE_OPENMP=ON \
+  /opt/gmsh-${GMSH_VER}-source && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/gmsh && \
+cd /usr/local/modulefiles/gmsh && \
+sed -i "s/@pver@/${GMSH_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/gmsh/${GMSH_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${GMSH_VER}" >> .version && \
+cd /opt && \
+echo "export MODULEPATH=/usr/local/modulefiles:"'$'{MODULEPATH+:'$'{MODULEPATH}} >> /.singularity.d/env/90-environment.sh
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/gmsh-*

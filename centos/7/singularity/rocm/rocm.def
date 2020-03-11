@@ -1,0 +1,47 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export ROC_VER=3.3.0
+tee > /etc/yum.repos.d/rocm.repo << EOF
+[ROCm]
+name=ROCm
+baseurl=http://repo.radeon.com/rocm/yum/rpm
+enabled=1
+gpgcheck=0
+EOF
+yum install -y \
+  dkms \
+  kernel-headers-`uname -r` \
+  kernel-devel-`uname -r` && \
+yum install -y \
+  comgr \
+  rccl \
+  rocalution \
+  rocblas \
+  rocfft \
+  rocprim \
+  rocrand \
+  rocsolver \
+  rocsparse \
+  rocthrust \
+  roctracer-dev \
+  rock-dkms \
+  rocm-clang-ocl \
+  rocm-cmake \
+  rocm-dkms \
+  rocm-device-libs \
+  rocm-dev \
+  rocm-libs \
+  rocm-opencl-devel \
+  rocm-opencl \
+  rocm-smi \
+  rocm-utils \
+  rocminfo && \
+mkdir -p /usr/local/modulefiles/dev/roc && \
+sed -i "s/@pver@/${ROC_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/roc/${ROC_VER}

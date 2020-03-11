@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export FLTKVER=1.3.5
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/fltk/fltk/archive/release-${FLTKVER}.tar.gz && \
+tar xf /opt/release-${FLTKVER}.tar.gz && \
+cd /opt/fltk-release-${FLTKVER} && \
+./autogen.sh
+./configure \
+  --prefix=/usr/local/fltk/${FLTKVER} \
+  --enable-shared=yes && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/fltk && \
+cd /usr/local/modulefiles/dev/fltk && \
+sed -i "s/@pver@/${FLTKVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/fltk/${FLTKVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FLTKVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/fltk-release-${FLTKVER} \
+  /opt/release-${FLTKVER}.tar.gz

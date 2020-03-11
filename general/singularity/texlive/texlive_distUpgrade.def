@@ -1,0 +1,9 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load texlive
+/usr/local/texlive/installdir/bin/x86_64-linux/tlmgr update --self
+/usr/local/texlive/installdir/bin/x86_64-linux/tlmgr update --all

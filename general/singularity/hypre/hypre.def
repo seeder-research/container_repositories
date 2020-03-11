@@ -1,0 +1,62 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export HYPRE_VER=2.18.2
+. /etc/profile.d/modules.sh && \
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev && \
+module load \
+  openmpi \
+  intel/mkl && \
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/hypre-space/hypre/archive/v${HYPRE_VER}.tar.gz && \
+tar xf /opt/v${HYPRE_VER}.tar.gz && \
+cp -a \
+  /opt/hypre-${HYPRE_VER}/src \
+  /opt/hypre-${HYPRE_VER}/build-static && \
+cp -a \
+  /opt/hypre-${HYPRE_VER}/src \
+  /opt/hypre-${HYPRE_VER}/build-shared && \
+cd /opt/hypre-${HYPRE_VER}/build-static && \
+./configure \
+  --prefix=/usr/local/hypre/${HYPRE_VER} \
+  --enable-shared=no \
+  --with-blas-libs=mkl_rt \
+  --with-blas-lib-dirs=${MKLROOT} \
+  --with-lapack-libs=mkl_rt \
+  --with-lapack-lib-dirs=${MKLROOT} \
+  --with-openmp \
+  --with-MPI && \
+make -j$(nproc) && \
+make install && \
+cd /opt/hypre-${HYPRE_VER}/build-shared && \
+./configure \
+  --prefix=/usr/local/hypre/${HYPRE_VER} \
+  --enable-shared=yes \
+  --with-blas-libs=mkl_rt \
+  --with-blas-lib-dirs=${MKLROOT} \
+  --with-lapack-libs=mkl_rt \
+  --with-lapack-lib-dirs=${MKLROOT} \
+  --with-openmp \
+  --with-MPI && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/hypre && \
+cd /usr/local/modulefiles/dev/hypre && \
+sed -i "s/@pver@/${HYPRE_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/hypre/${HYPRE_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${HYPRE_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/v${HYPRE_VER}.tar.gz \
+  /opt/hypre-${HYPRE_VER}

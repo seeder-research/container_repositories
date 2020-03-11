@@ -1,0 +1,93 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+yum upgrade -y
+yum groupinstall -y \
+  "Minimal Install" \
+  "Compute Node" \
+  "Development and Creative Workstation" \
+  "Development Tools" \
+  "Compatibility Libraries" \
+  "Hardware Support" \
+  "Scientific Support"
+yum install -y \
+  autoconf \
+  automake \
+  centos-release-scl \
+  expat-devel \
+  expat \
+  g++ \
+  gcc \
+  gfortran \
+  git \
+  hwloc-devel \
+  libedit-devel \
+  libedit \
+  libical-devel \
+  libtool \
+  libXext \
+  libXft \
+  libX11-devel \
+  libXt-devel \
+  make \
+  most \
+  nano \
+  ncurses-devel \
+  openssl-devel \
+  perl \
+  postgresql-contrib \
+  postgresql-devel \
+  postgresql-server \
+  python-devel \
+  python3-devel \
+  python3 \
+  rpm-build \
+  swig \
+  tcl-devel \
+  tcl \
+  tk-devel \
+  tk \
+  tkcvs \
+  wget \
+  which
+yum install -y \
+  authconfig \
+  sudo
+yum install -y \
+  ypbind \
+  rpcbind \
+  openssh \
+  openssh-server
+yum update -y 
+yum install -y \
+  devtoolset-6 \
+  devtoolset-7 \
+  devtoolset-8 \
+  nano \
+  which \
+  environment-modules \
+  epel-release 
+yum install -y \
+  initscripts \
+  libstdc++.i686 \
+  tcsh \
+  csh \
+  ksh \
+  zsh \
+  glibc.i686 \
+  elfutils-libelf.i686 \
+  redhat-lsb.i686 \
+  redhat-lsb.x86_64 \
+  mesa-libGL.i686 \
+  mesa-libGLU.i686 \
+  motif.i686 \
+  libXp.i686 \
+  libpng.i686 \
+  libjpeg-turbo.i686 \
+  expat.i686 \
+  glibc-devel.i686 \
+  xz-compat-libs.i686 \
+  xz-devel.i686 \
+  xz-libs.i686

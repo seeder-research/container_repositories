@@ -1,0 +1,47 @@
+diff -ru CombBLAS_beta_16_2/BipartiteMatchings/ApproxWeightPerfectMatching.h CombBLAS_beta_16_2_new/BipartiteMatchings/ApproxWeightPerfectMatching.h
+--- CombBLAS_beta_16_2/BipartiteMatchings/ApproxWeightPerfectMatching.h	2018-04-30 02:01:10.000000000 +0800
++++ CombBLAS_beta_16_2_new/BipartiteMatchings/ApproxWeightPerfectMatching.h	2020-06-02 22:12:18.232481260 +0800
+@@ -39,7 +39,7 @@
+     std::shared_ptr<CommGrid> commGrid;
+ };
+ 
+-double t1Comp, t1Comm, t2Comp, t2Comm, t3Comp, t3Comm, t4Comp, t4Comm, t5Comp, t5Comm, tUpdateMateComp;
++static double t1Comp, t1Comm, t2Comp, t2Comm, t3Comp, t3Comm, t4Comp, t4Comm, t5Comp, t5Comm, tUpdateMateComp;
+     
+ 
+ template <class IT, class NT>
+@@ -391,7 +391,7 @@
+ 
+ 
+ 
+-int ThreadBuffLenForBinning(int itemsize, int nbins)
++inline int ThreadBuffLenForBinning(int itemsize, int nbins)
+ {
+     // 1MB shared cache (per 2 cores) in KNL
+ #ifndef L2_CACHE_SIZE
+diff -ru CombBLAS_beta_16_2/BipartiteMatchings/BPMaximalMatching.h CombBLAS_beta_16_2_new/BipartiteMatchings/BPMaximalMatching.h
+--- CombBLAS_beta_16_2/BipartiteMatchings/BPMaximalMatching.h	2020-06-02 22:08:30.506671490 +0800
++++ CombBLAS_beta_16_2_new/BipartiteMatchings/BPMaximalMatching.h	2020-06-02 22:08:58.670886781 +0800
+@@ -14,8 +14,8 @@
+ #define GREEDY 1
+ #define KARP_SIPSER 2
+ #define DMD 3
+-MTRand GlobalMT(123); // for reproducible result
+-double tTotalMaximal;
++static MTRand GlobalMT(123); // for reproducible result
++static double tTotalMaximal;
+ 
+ namespace combblas {
+ 
+diff -ru CombBLAS_beta_16_2/BipartiteMatchings/BPMaximumMatching.h CombBLAS_beta_16_2_new/BipartiteMatchings/BPMaximumMatching.h
+--- CombBLAS_beta_16_2/BipartiteMatchings/BPMaximumMatching.h	2017-12-09 08:32:00.000000000 +0800
++++ CombBLAS_beta_16_2_new/BipartiteMatchings/BPMaximumMatching.h	2020-06-02 22:09:31.275135970 +0800
+@@ -11,7 +11,7 @@
+ #include <string>
+ #include <sstream>
+ #include "MatchingDefs.h"
+-double tTotalMaximum;
++static double tTotalMaximum;
+ 
+ namespace combblas {
+ 

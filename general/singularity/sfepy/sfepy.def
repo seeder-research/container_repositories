@@ -1,0 +1,77 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export SFEPY_VER=release_2020.1
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  suitesparse \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  fltk \
+  occt \
+  gmsh \
+  petsc \
+  slepc
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+conda config \
+  --add channels anaconda && \
+pip install meshio[all] && \
+conda install -y \
+  ipython \
+  matplotlib \
+  mumps \
+  pexpect \
+  pyparsing \
+  pytables \
+  scikit-umfpack \
+  sympy \
+  wxpython && \
+conda install -y \
+  pysparse && \
+conda install -y \
+  mayavi && \
+pip install pymetis && \
+cd /opt && \
+git clone https://bitbucket.org/dalcinl/igakit \
+  ./igakit && \
+cd /opt/igakit && \
+python setup.py install && \
+git clone https://github.com/sfepy/sfepy.git -b ${SFEPY_VER} \
+  ./sfepy && \
+cd /opt/sfepy && \
+python setup.py install && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/sfepy \
+  /opt/igakit && \
+conda clean -yt && \
+echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh
+echo ". /etc/profile.d/conda.sh" >> /.singularity.d/env/90-environment.sh
+echo "module load \\" >> /.singularity.d/env/90-environment.sh
+echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh
+echo "  intel/mkl \\" >> /.singularity.d/env/90-environment.sh
+echo "  metis \\" >> /.singularity.d/env/90-environment.sh
+echo "  suitesparse \\" >> /.singularity.d/env/90-environment.sh
+echo "  hdf5 \\" >> /.singularity.d/env/90-environment.sh
+echo "  pnetcdf \\" >> /.singularity.d/env/90-environment.sh
+echo "  netcdf \\" >> /.singularity.d/env/90-environment.sh
+echo "  boost \\" >> /.singularity.d/env/90-environment.sh
+echo "  petsc \\" >> /.singularity.d/env/90-environment.sh
+echo "  slepc \\" >> /.singularity.d/env/90-environment.sh
+echo "  fltk \\" >> /.singularity.d/env/90-environment.sh
+echo "  occt \\" >> /.singularity.d/env/90-environment.sh
+echo "  gmsh \\" >> /.singularity.d/env/90-environment.sh

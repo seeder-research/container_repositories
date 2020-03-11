@@ -1,0 +1,43 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export METISVER=5.1.0
+cd /opt && \
+wget --no-check-certificate \
+  http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-${METISVER}.tar.gz && \
+tar xf /opt/metis-${METISVER}.tar.gz && \
+cd /opt/metis-${METISVER} && \
+make config \
+  prefix=/usr/local/metis/${METISVER} && \
+make \
+  prefix=/usr/local/metis/${METISVER} && \
+make install \
+  prefix=/usr/local/metis/${METISVER} && \
+cd /opt && \
+rm -rf /opt/metis-${METISVER} && \
+cd /opt && \
+tar xf /opt/metis-${METISVER}.tar.gz && \
+cd /opt/metis-${METISVER} && \
+make config \
+  prefix=/usr/local/metis/${METISVER} \
+  shared=1 && \
+make \
+  prefix=/usr/local/metis/${METISVER} \
+  shared=1 && \
+make install \
+  prefix=/usr/local/metis/${METISVER} \
+  shared=1 && \
+mkdir /usr/local/modulefiles/dev/metis && \
+cd /usr/local/modulefiles/dev/metis && \
+sed -i "s/@pver@/${METISVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/metis/${METISVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${METISVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/metis-*

@@ -1,0 +1,38 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              comp_name         mkl
+set              version           @pver@
+set              base              /opt/${vendor}/compilers_and_libraries_${version}/linux
+set              root              ${base}/${comp_name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) Math Kernel Library (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) Math Kernel Library (version $version) to your environment variables."
+
+if {[ is-loaded intel/mkl ]} {module unload intel/mkl}
+
+setenv	MKLROOT	${root}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64_lin
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64_lin
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64_lin
+prepend-path      LD_LIBRARY_PATH   ${base}/compiler/lib/intel64_lin
+prepend-path      LD_RUN_PATH       ${base}/compiler/lib/intel64_lin
+prepend-path      LIBRARY_PATH      ${base}/compiler/lib/intel64_lin
+
+prepend-path	  CPATH		    ${root}/include/intel64/ilp64:${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include/intel64/ilp64:${root}/include
+
+prepend-path      PKG_CONFIG_PATH   ${root}/bin/pkgconfig
+
+prepend-path      NLSPATH           ${root}/lib/intel64_lin/locale/%l_%t/%N
+

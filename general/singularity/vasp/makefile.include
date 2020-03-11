@@ -1,0 +1,90 @@
+# Precompiler options
+CPP_OPTIONS= -DHOST=\"LinuxGNU\" \
+             -DMPI -DMPI_BLOCK=8000 \
+             -Duse_collective \
+             -DELPA \
+             -DscaLAPACK \
+             -DCACHE_SIZE=4000 \
+             -Davoidalloc \
+             -Duse_bse_te \
+             -Dtbdyn \
+             -Duse_shmem \
+             -DVASP2WANNIER90v2 \
+             -Dlibbeef
+
+CPP        = gcc -E -P -C -w $*$(FUFFIX) >$*$(SUFFIX) $(CPP_OPTIONS)
+
+FC         = mpif90 -m64 -I$(MKLROOT)/include -I$(MKLROOT)/include/intel64/lp64 -fopenmp
+FCL        = mpif90 -m64 -I$(MKLROOT)/include -I$(MKLROOT)/include/intel64/lp64 -fopenmp
+
+FREE       = -ffree-form -ffree-line-length-none
+
+FFLAGS     = -w
+OFLAG      = -O2 -m64 -mavx
+OFLAG_IN   = $(OFLAG)
+DEBUG      = -O0
+
+LIBDIR     = /usr/lib/x86_64-linux-gnu
+MKLPATH    = $(MKLROOT)/lib/intel64
+BLAS       = 
+LAPACK     = 
+BLACS      = -L$(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_blacs_openmpi_lp64 $(LAPACK)
+SCALAPACK  = -L$(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -Wl,--as-needed $(BLACS)
+
+OBJECTS    = fftmpi.o fftmpi_map.o fftw3d.o fft3dlib.o
+
+INCS       = -I$(MKLROOT)/include/intel64/lp64 -I$(MKLROOT)/include/fftw -I/usr/local/elpa/2016.05.004/include/elpa-2016.05.004/modules
+
+LLIBS      = -L$(ELPA_ROOT)/lib $(SCALAPACK) $(BLAS) -lelpa -lmkl_cdft_core -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lstdc++ -lpthread -lm -ldl
+
+
+OBJECTS_O1 += fftw3d.o fftmpi.o fftmpiw.o
+OBJECTS_O2 += fft3dlib.o
+
+# For what used to be vasp.5.lib
+CPP_LIB    = $(CPP)
+FC_LIB     = $(FC)
+CC_LIB     = gcc
+CFLAGS_LIB = -O
+FFLAGS_LIB = -O1
+FREE_LIB   = $(FREE)
+
+OBJECTS_LIB= linpack_double.o getshmem.o
+
+# For the parser library
+CXX_PARS   = g++
+
+LIBS       += parser
+LLIBS      += -Lparser -lparser -lstdc++
+
+# For Wannier90 library
+LLIBS      += $(WANNIER90_ROOT)/lib/libwannier.a
+
+# For libbeef library
+LLIBS      += $(LIBBEEF_ROOT)/lib/libbeef.a
+
+# Normally no need to change this
+SRCDIR     = ../../src
+BINDIR     = ../../bin
+
+#================================================
+# GPU Stuff
+
+CPP_GPU    = -DCUDA_GPU -DRPROMU_CPROJ_OVERLAP -DCUFFT_MIN=28 -UscaLAPACK # -DUSE_PINNED_MEMORY 
+
+OBJECTS_GPU= fftmpiw.o fftmpi_map.o fft3dlib.o fftw3d_gpu.o fftmpiw_gpu.o
+
+CC         = gcc
+CXX        = g++
+CFLAGS     = -fPIC -DADD_ -fopenmp -DGPUSHMEM=300 -DHAVE_CUBLAS
+
+CUDA_ROOT  ?= /usr/local/cuda
+NVCC       := $(CUDA_ROOT)/bin/nvcc -ccbin=gcc -g
+CUDA_LIB   := -L$(CUDA_ROOT)/lib64 -lnvToolsExt -lcudart -lcuda -lcufft -lcublas
+
+GENCODE_ARCH    := -gencode=arch=compute_30,code=\"sm_30,compute_30\" \
+                   -gencode=arch=compute_35,code=\"sm_35,compute_35\" \
+                   -gencode=arch=compute_53,code=\"sm_53,compute_53\"
+                   -gencode=arch=compute_60,code=\"sm_60,compute_60\"
+
+MPI_INC    = $(MPI_ROOT)/include

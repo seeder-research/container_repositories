@@ -1,0 +1,67 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+daal       /opt
+iomp       /opt
+ipp        /opt
+mkl        /opt
+mkl_ilp64  /opt
+mpi        /opt
+pstl       /opt
+tbb_gcc47  /opt
+
+%post
+cd /opt && \
+add-apt-repository "deb https://apt.repos.intel.com/mkl all main" && \
+add-apt-repository "deb https://apt.repos.intel.com/ipp all main" && \
+add-apt-repository "deb https://apt.repos.intel.com/tbb all main" && \
+add-apt-repository "deb https://apt.repos.intel.com/daal all main" && \
+add-apt-repository "deb https://apt.repos.intel.com/mpi all main" && \
+apt-get update && \
+apt-get install -y \
+  intel-mkl-2019.4-070 \
+  intel-tbb-2019.6-070 \
+  intel-ipp-2019.4-070 \
+  intel-daal-2019.4-070 \
+  intel-mpi-2019.4-070 && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+cd /usr/local/modulefiles/dev/intel && \
+mv /opt/daal \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/ipp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/iomp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl_ilp64 \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/tbb_gcc47 \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mpi \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/pstl \
+  /usr/local/modulefiles/dev/intel/. && \
+sed -i "s/@pver@/2019.4.243/g" /usr/local/modulefiles/dev/intel/* && \
+rm -rf \
+  /var/lib/apt/lists/*
+
+%appenv mkl
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+
+%appenv mklmpi
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi

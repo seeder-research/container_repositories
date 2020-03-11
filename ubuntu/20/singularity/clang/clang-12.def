@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /.singularity.d/env/90-environment.sh
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main" >> /etc/apt/sources.list.d/clang_12.list
+echo "deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main" >> /etc/apt/sources.list.d/clang_12.list
+apt update
+apt-get install -y \
+  clang-12-doc \
+  clang-format-12 \
+  clang-tidy-12 \
+  clang-tools-12 \
+  clang-12 \
+  clangd-12 \
+  libc++-12-dev \
+  libc++1-12 \
+  libc++abi-12-dev \
+  libc++abi1-12 \
+  libclang-12-dev \
+  libclang-common-12-dev \
+  libclang1-12 \
+  libfuzzer-12-dev \
+  libllvm-12-ocaml-dev \
+  libllvm12 \
+  libomp-12-dev \
+  libomp5-12 \
+  lld-12 \
+  lldb-12 \
+  llvm-12-dev \
+  llvm-12-doc \
+  llvm-12-examples \
+  llvm-12-runtime \
+  llvm-12 \
+  python3-clang-12 && \
+rm -rf \
+  /var/lib/apt/lists/*

@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                /opt
+
+%post
+. /etc/profile
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export FREETYPE_VER=2.10.1
+cd /opt && \
+wget --no-check-certificate \
+  https://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPE_VER}.tar.gz && \
+tar xf /opt/freetype-${FREETYPE_VER}.tar.gz && \
+cd /opt/freetype-${FREETYPE_VER} && \
+./configure \
+  --enable-freetype-config \
+  --prefix=/usr/local/freetype/${FREETYPE_VER} && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/freetype && \
+cd /usr/local/modulefiles/dev/freetype && \
+sed -i "s/@pver@/${FREETYPE_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/freetype/${FREETYPE_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FREETYPE_VER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/freetype-${FREETYPE_VER}.tar.bz2 \
+  /opt/freetype-${FREETYPE_VER}

@@ -1,0 +1,14 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+oommf.tgz    /opt
+
+%post
+export OOMMFVER=20a2
+echo "alias oommf='tclsh /usr/local/oommf/20a2/oommf.tcl'" > /etc/profile.d/oommf_alias.sh
+cd /usr/local/oommf
+tar xf /opt/oommf.tgz
+rm -rf /opt/oommf.tgz
+chown -R root:root /usr/local/oommf
+chmod -R 755 /usr/local/oommf/${OOMMFVER}

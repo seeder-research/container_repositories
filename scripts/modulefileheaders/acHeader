@@ -1,0 +1,1 @@
+prepend-path        ACLOCAL_PATH               ${root}/@pathdir@:${ACLOCAL_PATH}

@@ -1,0 +1,63 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                /opt
+
+%post
+. /etc/profile
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export HDF5VER0=1_12_0
+export HDF5VER=1.12.0
+module load openmpi
+export CC=$(which gcc)
+export CXX=$(which g++)
+export FC=$(which gfortran)
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget https://hdf-wordpress-1.s3.amazonaws.com/wp-content/uploads/manual/HDF5/HDF5_${HDF5VER0}/source/hdf5-${HDF5VER}.tar.bz2
+tar xf /opt/hdf5-${HDF5VER}.tar.bz2 && \
+cd /opt/hdf5-${HDF5VER} && \
+./configure \
+  --prefix=/usr/local/hdf5/${HDF5VER} \
+  --enable-build-mode=production \
+  --enable-fortran=yes \
+  --enable-cxx=yes \
+  --enable-hl=yes \
+  --enable-static=yes \
+  --enable-shared=yes && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+rm -rf /opt/hdf5-${HDF5VER}
+export CC=$(which mpicc)
+export CXX=$(which mpicxx)
+export FC=$(which mpifort)
+cd /opt && \
+tar xf /opt/hdf5-${HDF5VER}.tar.bz2 && \
+cd /opt/hdf5-${HDF5VER} && \
+./configure \
+  --prefix=/usr/local/hdf5/${HDF5VER} \
+  --enable-build-mode=production \
+  --enable-fortran=yes \
+  --enable-hl=yes \
+  --enable-parallel=yes \
+  --enable-static=yes \
+  --enable-shared=yes && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/hdf5 && \
+cd /usr/local/modulefiles/dev/hdf5 && \
+sed -i "s/@pver@/${HDF5VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/hdf5/${HDF5VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${HDF5VER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/hdf5-${HDF5VER} \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/hdf5-${HDF5VER}.tar.bz2

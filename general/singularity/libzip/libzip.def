@@ -1,0 +1,34 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /.singularity.d/env/90-environment.sh
+export LIBZIP_VER_MAJOR=1
+export LIBZIP_VER_MINOR=6
+export LIBZIP_VER_BUILD=1
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/nih-at/libzip/archive/rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}.tar.gz && \
+tar xf /opt/rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}.tar.gz && \
+mkdir /opt/libzip-rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}/builddir && \
+cd /opt/libzip-rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/libzip/${LIBZIP_VER_MAJOR}.${LIBZIP_VER_MINOR}.${LIBZIP_VER_BUILD} \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER=/usr/bin/gcc \
+  .. && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/libzip && \
+cd /usr/local/modulefiles/dev/libzip && \
+sed -i "s/@pver@/${LIBZIP_VER_MAJOR}.${LIBZIP_VER_MINOR}.${LIBZIP_VER_BUILD}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/libzip/${LIBZIP_VER_MAJOR}.${LIBZIP_VER_MINOR}.${LIBZIP_VER_BUILD} && \
+echo "#%Module" > /usr/local/modulefiles/dev/libzip/.version && \
+echo set ModulesVersion "${LIBZIP_VER_MAJOR}.${LIBZIP_VER_MINOR}.${LIBZIP_VER_BUILD}" >> /usr/local/modulefiles/dev/libzip/.version && \
+rm -rf \
+  /opt/rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}.tar.gz \
+  /opt/libzip-rel-${LIBZIP_VER_MAJOR}-${LIBZIP_VER_MINOR}-${LIBZIP_VER_BUILD}

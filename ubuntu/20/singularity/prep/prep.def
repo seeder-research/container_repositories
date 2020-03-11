@@ -1,0 +1,149 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  apt-transport-https \
+  apt-utils && \
+apt-get upgrade -y && \
+ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+echo Asia/Singapore > /etc/timezone && \
+TZ=Asia/Singapore apt install -y tzdata && \
+apt-get install -y --no-install-recommends \
+  ca-certificates \
+  gnupg \
+  software-properties-common \
+  wget && \
+cd /opt && \
+wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add - && \
+apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main' && \
+apt-get update && \
+apt-get install -y \
+  kitware-archive-keyring && \
+apt-get install -y --no-install-recommends \
+  autoconf \
+  automake \
+  autopoint \
+  bash-completion \
+  bc \
+  build-essential \
+  bzip2 \
+  curl \
+  doxygen \
+  environment-modules \
+  expat \
+  freeglut3 \
+  freeglut3-dev \
+  g++ \
+  gawk \
+  gcc \
+  gettext \
+  gfortran \
+  git \
+  gperf \
+  gzip \
+  help2man \
+  kmod \
+  libbz2-dev \
+  libedit2 \
+  libedit-dev \
+  libeditline0 \
+  libeditline-dev \
+  libegl1 \
+  libegl1-mesa \
+  libegl1-mesa-dev \
+  libexpat1 \
+  libexpat1-dev \
+  libfontconfig1-dev \
+  libgegl-0.4-0 \
+  libgegl-common \
+  libgegl-dev \
+  libglu1-mesa-dev \
+  libgmp-dev \
+  libhdf5-dev \
+  libhwloc-dev \
+  libical-dev \
+  libmpc-dev \
+  libmpfr-dev \
+  libmpfrc++-dev \
+  libncurses5-dev \
+  libnetcdf15 \
+  libnetcdf-dev \
+  libnetcdf-c++4-dev \
+  libnetcdf-c++4-1 \
+  libnetcdff-dev \
+  libnetcdff7 \
+  libpciaccess-dev \
+  libpciaccess0 \
+  libssl-dev \
+  libtool \
+  libx11-dev \
+  libx11-xcb-dev \
+  libxaw7-dev \
+  libxaw7 \
+  libxcb-glx0-dev \
+  libxcb-icccm4-dev \
+  libxcb-image0-dev \
+  libxcb-keysyms1-dev \
+  libxcb-randr0-dev \
+  libxcb-render-util0-dev \
+  libxcb-shape0-dev \
+  libxcb-shm0-dev \
+  libxcb-sync0-dev \
+  libxcb-xfixes0-dev \
+  libxcb1-dev \
+  libxext-dev \
+  libxft-dev \
+  libxfixes-dev \
+  libxi-dev \
+  libxi6 \
+  libxkbcommon-x11-dev \
+  libxml2-dev \
+  libxml2 \
+  libxml-libxml-perl \
+  libxml-perl \
+  libxrender-dev \
+  libxt-dev \
+  locales \
+  locales-all \
+  localehelper \
+  localepurge \
+  m4 \
+  man-db \
+  man \
+  mercurial \
+  mesa-common-dev \
+  nano \
+  ncurses-dev \
+  ninja-build \
+  patch \
+  perl \
+  postgresql \
+  postgresql-server-dev-all \
+  postgresql-contrib \
+  python-is-python2 \
+  python-dev-is-python2 \
+  rsh-client \
+  rsh-server \
+  rsync \
+  ssh \
+  swig \
+  tcl \
+  tcl-dev \
+  texinfo \
+  tk \
+  tk-dev \
+  unzip && \
+apt-get install -y --no-install-recommends \
+  cmake \
+  cmake-curses-gui \
+  cmake-data \
+  cmake-doc \
+  cmake-qt-gui && \
+locale-gen en_US.UTF-8 && \
+update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+rm -rf \
+  /var/lib/apt/lists/*

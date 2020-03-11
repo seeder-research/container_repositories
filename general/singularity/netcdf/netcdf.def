@@ -1,0 +1,75 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export TOPVER=4
+export NETCDFCVER=4.7.4
+export NETCDFCXXVER=4.3.1
+export NETCDFFORTVER=4.5.2
+module load \
+  openmpi \
+  hdf5 \
+  pnetcdf
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/Unidata/netcdf-c/archive/v${NETCDFCVER}.tar.gz && \
+tar xf /opt/v${NETCDFCVER}.tar.gz && \
+cd /opt/netcdf-c-${NETCDFCVER} && \
+./configure \
+  --prefix=/usr/local/netcdf/${TOPVER} \
+  --enable-hdf5=yes \
+  --enable-dynamic-loading=yes \
+  --enable-static=yes \
+  --enable-shared=yes \
+  --enable-pnetcdf=yes && \
+make -j$(nproc) && \
+make install && \
+rm -rf \
+  /opt/v${NETCDFCVER}.tar.gz \
+  /opt/netcdf-* && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/Unidata/netcdf-cxx4/archive/v${NETCDFCXXVER}.tar.gz && \
+tar xf /opt/v${NETCDFCXXVER}.tar.gz && \
+cd /opt/netcdf-cxx4-${NETCDFCXXVER} && \
+./configure \
+  --prefix=/usr/local/netcdf/${TOPVER} \
+  --enable-static=yes \
+  --enable-shared=yes && \
+make -j$(nproc) && \
+make install && \
+rm -rf \
+  /opt/v${NETCDFCXXVER}.tar.gz \
+  /opt/netcdf-* && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/Unidata/netcdf-fortran/archive/v${NETCDFFORTVER}.tar.gz && \
+tar xf /opt/v${NETCDFFORTVER}.tar.gz && \
+cd /opt/netcdf-fortran-${NETCDFFORTVER} && \
+./configure \
+  --prefix=/usr/local/netcdf/${TOPVER} \
+  --enable-static=yes \
+  --enable-shared=yes && \
+make && \
+make install && \
+rm -rf \
+  /opt/v${NETCDFFORTVER}.tar.gz \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/netcdf-* && \
+mkdir -p /usr/local/modulefiles/dev/netcdf && \
+cd /usr/local/modulefiles/dev/netcdf && \
+sed -i "s/@pver@/${TOPVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/netcdf/${TOPVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${TOPVER}" >> .version

@@ -1,0 +1,69 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export BOOSTVER_MAJOR=1
+export BOOSTVER_MINOR=76
+export BOOSTVER=${BOOSTVER_MAJOR}.${BOOSTVER_MINOR}
+export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/opt/conda/include/python3.7m"
+module load openmpi 
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+git clone --recursive https://github.com/boostorg/boost.git -b boost-${BOOSTVER}.0 /opt/boost-${BOOSTVER}.0 && \
+cd /opt/boost-${BOOSTVER}.0 && \
+./bootstrap.sh --with-toolset=gcc && \
+echo "using mpi ;" >> user-config.jam && \
+./tools/build/src/engine/bjam -j$(nproc) \
+  --prefix=/usr/local/boost/${BOOSTVER} \
+  --layout=versioned \
+  toolset=gcc \
+  variant=release \
+  link=static \
+  threading=multi \
+  install
+./tools/build/src/engine/bjam -j$(nproc) \
+  --prefix=/usr/local/boost/${BOOSTVER} \
+  --layout=system \
+  toolset=gcc \
+  variant=release \
+  link=static \
+  threading=multi \
+  install
+./tools/build/src/engine/bjam -j$(nproc) \
+  --prefix=/usr/local/boost/${BOOSTVER} \
+  --layout=versioned \
+  toolset=gcc \
+  variant=release \
+  link=shared \
+  threading=multi \
+  install
+./tools/build/src/engine/bjam -j$(nproc) \
+  --prefix=/usr/local/boost/${BOOSTVER} \
+  --layout=system \
+  toolset=gcc \
+  variant=release \
+  link=shared \
+  threading=multi \
+  install
+mkdir /usr/local/modulefiles/dev/boost && \
+cd /usr/local/modulefiles/dev/boost && \
+sed -i "s/@pver@/${BOOSTVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/boost/${BOOSTVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${BOOSTVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/boost-${BOOSTVER}.0

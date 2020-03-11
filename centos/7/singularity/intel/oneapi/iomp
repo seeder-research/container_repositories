@@ -1,0 +1,22 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              compiler
+set              version           latest
+set              root              /opt/intel/inteloneapi/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+prepend-path      LD_LIBRARY_PATH   ${root}/linux/lib/intel64
+prepend-path      LD_RUN_PATH       ${root}/linux/lib/intel64
+prepend-path      LIBRARY_PATH      ${root}/linux/lib/intel64
+
+prepend-path      CPATH             ${root}/linux/include
+prepend-path      INCLUDE_PATH      ${root}/linux/include

@@ -1,0 +1,3 @@
+BootStrap: docker
+From: firedrakeproject/firedrake:latest
+

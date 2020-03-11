@@ -1,0 +1,54 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+export NGSPICEVER=r31
+module load \
+  bison \
+  flex \
+  adms \
+  intel/mkl && \
+cd /opt && \
+git clone \
+  --recursive \
+  http://git.code.sf.net/p/ngspice/ngspice \
+  ngspice && \
+cd /opt/ngspice && \
+./autogen.sh --adms && \
+./configure \
+  --prefix=/usr/local/ngspice/${NGSPICEVER} \
+  --enable-xspice \
+  --enable-cider \
+  --enable-adms \
+  --enable-pss \
+  --enable-ndev \
+  --enable-shared \
+  --enable-static \
+  --disable-debug \
+  --disable-maintainer-mode \
+  --with-editline=yes \
+  --with-fftw3=yes \
+  --with-x=yes \
+  CFLAGS="-m64 -O2 -I${MKLROOT}/include" \
+  LDFLAGS="-m64 -s -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_cdft_core -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -Wl,--as-needed -lpthread -lm -ldl" && \
+make clean && \
+make -j$(nproc) install && \
+cd /opt
+if [ ! -d /usr/local/modulefiles/ngspice ]; then
+    mkdir -p /usr/local/modulefiles/ngspice
+fi
+cd /usr/local/modulefiles/ngspice && \
+sed -i "s/@pver@/${NGSPICEVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/ngspice/${NGSPICEVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${NGSPICEVER}" >> .version && \
+rm -rf \
+  /opt/ngspice \
+  /opt/${NGSPICEVER}

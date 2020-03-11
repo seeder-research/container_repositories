@@ -1,0 +1,26 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+apt update && \
+apt-get install -y \
+  libass-dev \
+  libfreetype6-dev \
+  libnuma-dev \
+  libsdl2-dev \
+  libtool \
+  libva-dev \
+  libvdpau-dev \
+  libvorbis-dev \
+  libxcb1-dev \
+  libxcb-shm0-dev \
+  libxcb-xfixes0-dev \
+  mercurial \
+  pkg-config \
+  texinfo \
+  yasm \
+  zlib1g-dev && \
+rm -rf \
+  /var/lib/apt/lists/*

@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+export GLPKVER=4.65
+cd /opt && \
+wget --no-check-certificate \
+  http://ftp.gnu.org/gnu/glpk/glpk-${GLPKVER}.tar.gz && \
+tar xf glpk-${GLPKVER}.tar.gz && \
+cd /opt/glpk-${GLPKVER} && \
+./configure \
+  --prefix=/usr/local/glpk/${GLPKVER} \
+  --enable-dl=yes \
+  --enable-shared=yes \
+  --enable-static=yes && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+rm -rf \
+  /opt/glpk-${GLPKVER} \
+  /opt/glpk-${GLPKVER}.tar.gz && \
+mkdir -p /usr/local/modulefiles/dev/glpk && \
+cd /usr/local/modulefiles/dev/glpk && \
+sed -i "s/@pver@/${GLPKVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/glpk/${GLPKVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${GLPKVER}" >> .version

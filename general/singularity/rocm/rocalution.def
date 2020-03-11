@@ -1,0 +1,63 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+export ROC_VER=3.3.0
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  roc
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/ROCmSoftwarePlatform/rocALUTION/archive/rocm-${ROC_VER}.tar.gz && \
+tar xf rocm-${ROC_VER}.tar.gz && \
+mkdir /opt/rocALUTION-rocm-${ROC_VER}/builddir_sh && \
+mkdir /opt/rocALUTION-rocm-${ROC_VER}/builddir_st && \
+cd /opt/rocALUTION-rocm-${ROC_VER}/builddir_st && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/rocm/rocalution \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_CLIENT_SAMPLES=OFF \
+  -DSUPPORT_HIP=ON\
+  -DSUPPORT_MPI=ON \
+  -DSUPPORT_OMP=ON \
+  .. && \
+make -j$(nproc) && \
+make install && \
+cd /opt/rocALUTION-rocm-${ROC_VER}/builddir_sh && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/opt/rocm/rocalution \
+  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_CLIENT_SAMPLES=OFF \
+  -DSUPPORT_HIP=ON\
+  -DSUPPORT_MPI=ON \
+  -DSUPPORT_OMP=ON \
+  .. && \
+make -j$(nproc) && \
+make install && \
+cd /usr/local/modulefiles/dev/roc && \
+echo "######## ROCALUTION ########" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "setenv            ROCALUTION_ROOT   "'$'"{root}/rocalution" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CPATH             "'$'"{root}/rocalution/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      INCLUDE_PATH      "'$'"{root}/rocalution/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_LIBRARY_PATH   "'$'"{root}/rocalution/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LIBRARY_PATH      "'$'"{root}/rocalution/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_RUN_PATH       "'$'"{root}/rocalution/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CMAKE_PREFIX_PATH "'$'"{root}/rocalution/lib/cmake/rocalution" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/rocALUTION-rocm-${ROC_VER} \
+  /opt/rocm-${ROC_VER}.tar.gz

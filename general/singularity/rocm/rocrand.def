@@ -1,0 +1,73 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+export ROC_VER=3.3.0
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  roc
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/ROCmSoftwarePlatform/rocRAND/archive/rocm-${ROC_VER}.tar.gz && \
+tar xf /opt/rocm-${ROC_VER}.tar.gz && \
+mkdir -p /opt/rocRAND-rocm-${ROC_VER}/builddir_sh && \
+mkdir -p /opt/rocRAND-rocm-${ROC_VER}/builddir_st && \
+cd /opt/rocRAND-rocm-${ROC_VER}/builddir_st && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/opt/rocm/rocrand \
+  -DCMAKE_CXX_COMPILER=hcc \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_FORTRAN_WRAPPER=ON \
+  -DBUILD_SHARED_LIBS=OFF \
+  -DBUILD_TEST=OFF \
+  -DBUILD_BENCHMARK=OFF \
+  .. && \
+make -j$(nproc) && \
+make install && \
+cd /opt/rocRAND-rocm-${ROC_VER}/builddir_sh && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/opt/rocm/rocrand \
+  -DCMAKE_CXX_COMPILER=hcc \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_FORTRAN_WRAPPER=ON \
+  -DBUILD_SHARED_LIBS=ON \
+  -DBUILD_TEST=OFF \
+  -DBUILD_BENCHMARK=OFF \
+  .. && \
+make -j$(nproc) && \
+make install && \
+echo "######## ROCRAND ########" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "setenv            ROCRAND_ROOT      "'$'"{root}/rocrand/rocrand" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CPATH             "'$'"{root}/rocrand/rocrand/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      INCLUDE_PATH      "'$'"{root}/rocrand/rocrand/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_LIBRARY_PATH   "'$'"{root}/rocrand/rocrand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LIBRARY_PATH      "'$'"{root}/rocrand/rocrand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_RUN_PATH       "'$'"{root}/rocrand/rocrand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CMAKE_PREFIX_PATH "'$'"{root}/rocrand/rocrand/lib/cmake/rocrand" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "######## HIPRAND ########" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "setenv            HIPRAND_ROOT      "'$'"{root}/rocrand/hiprand" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CPATH             "'$'"{root}/rocrand/hiprand/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      INCLUDE_PATH      "'$'"{root}/rocrand/hiprand/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_LIBRARY_PATH   "'$'"{root}/rocrand/hiprand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LIBRARY_PATH      "'$'"{root}/rocrand/hiprand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      LD_RUN_PATH       "'$'"{root}/rocrand/hiprand/lib" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CMAKE_PREFIX_PATH "'$'"{root}/rocrand/hiprand/lib/cmake/hiprand" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/rocRAND-rocm-${ROC_VER} \
+  /opt/rocm-${ROC_VER}.tar.gz

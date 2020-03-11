@@ -1,0 +1,9 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+cd /usr/local && \
+git clone https://github.com/OFTNAI/Spike.git \
+  ./spike && \
+cd /usr/local/spike/Build && \
+./build.sh

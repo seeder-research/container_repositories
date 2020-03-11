@@ -1,0 +1,93 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  apt-transport-https \
+  apt-utils && \
+echo "libnccl2 install" | /usr/bin/dpkg --set-selections && \
+echo "libnccl-dev install" | /usr/bin/dpkg --set-selections && \
+echo "libcudnn7 install" | /usr/bin/dpkg --set-selections && \
+echo "libcudnn7-dev install" | /usr/bin/dpkg --set-selections && \
+apt-get upgrade -y && \
+ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+echo Asia/Singapore > /etc/timezone && \
+TZ=Asia/Singapore apt install -y tzdata && \
+apt-get install -y --no-install-recommends \
+  apt-utils \
+  autoconf \
+  automake \
+  autopoint \
+  bc \
+  build-essential \
+  bzip2 \
+  ca-certificates \
+  cmake \
+  cmake-curses-gui \
+  doxygen \
+  environment-modules \
+  freeglut3 \
+  freeglut3-dev \
+  g++ \
+  gawk \
+  gcc \
+  gettext \
+  gfortran \
+  git \
+  gzip \
+  help2man \
+  libglu1-mesa-dev \
+  libncurses5-dev \
+  libqt5opengl5 \
+  libqt5opengl5-dev \
+  libssl-dev \
+  libtool \
+  libx11-dev \
+  libxaw7-dev \
+  libxaw7 \
+  libxext-dev \
+  libxft-dev \
+  libxml2-dev \
+  libxml2 \
+  libxml-libxml-perl \
+  libxml-perl \
+  libxt-dev \
+  locales \
+  locales-all \
+  localehelper \
+  localepurge \
+  m4 \
+  man-db \
+  man \
+  mesa-common-dev \
+  nano \
+  ncurses-dev \
+  patch \
+  perl \
+  qt5-assistant \
+  qt5-default \
+  qt5-doc \
+  qt5-doc-html \
+  qt5-qmake \
+  qt5-image-formats-plugins \
+  qt5-qmake-bin \
+  qt5-qmltooling-plugins \
+  qt5-style-plugins \
+  qt5ct \
+  qt5dxcb-plugin \
+  qt5keychain-dev \
+  qt5qevercloud-dev \
+  rsync \
+  swig \
+  tcl \
+  tcl-dev \
+  tk \
+  tk-dev \
+  wget && \
+locale-gen en_US.UTF-8 && \
+update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+rm -rf \
+  /var/lib/apt/lists/*

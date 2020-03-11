@@ -1,0 +1,24 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              eigen
+set              version           @pver@
+set              root              /usr/local/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name library (version $version) to your environment variables"
+}
+
+module-whatis "adds $name library (version $version) to your environment variables."
+
+setenv            LIBEIGEN_ROOT     ${root}
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path	  PKG_CONFIG_PATH   ${root}/share/pkgconfig
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/share/eigen3/cmake

@@ -1,0 +1,42 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export PROTOBUF_VER=3.11.4
+export CFLAGS="-fPIC"
+export CXXFLAGS="-fPIC"
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/protocolbuffers/protobuf/archive/v${PROTOBUF_VER}.tar.gz && \
+tar xf /opt/v${PROTOBUF_VER}.tar.gz && \
+cd /opt/protobuf-${PROTOBUF_VER} && \
+./autogen.sh && \
+./configure \
+  --disable-shared \
+  --prefix=/usr/local/protobuf/${PROTOBUF_VER} && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+rm -rf \
+  /opt/protobuf-${PROTOBUF_VER} && \
+tar xf /opt/v${PROTOBUF_VER}.tar.gz && \
+cd /opt/protobuf-${PROTOBUF_VER} && \
+./autogen.sh && \
+./configure \
+  --enable-shared \
+  --prefix=/usr/local/protobuf/${PROTOBUF_VER} && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/protobuf && \
+cd /usr/local/modulefiles/dev/protobuf && \
+sed -i "s/@pver@/${PROTOBUF_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/protobuf/${PROTOBUF_VER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/protobuf/.version && \
+echo set ModulesVersion "${PROTOBUF_VER}" >> /usr/local/modulefiles/dev/protobuf/.version && \
+rm -rf \
+  /opt/v${PROTOBUF_VER}.tar.gz \
+  /opt/protobuf-${PROTOBUF_VER}

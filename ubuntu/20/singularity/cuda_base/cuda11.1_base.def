@@ -1,0 +1,24 @@
+BootStrap: docker
+From: nvidia/cuda:11.1-devel-ubuntu20.04
+
+%files
+90-environment.sh      /opt
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  apt-transport-https \
+  apt-utils && \
+apt-get upgrade -y && \
+ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+echo Asia/Singapore > /etc/timezone && \
+TZ=Asia/Singapore apt install -y tzdata && \
+apt-get install -y \
+  cuda-toolkit-11-1 \
+  cuda-nvml-dev-11-1 && \
+rm -f /.singularity.d/env/90-environment.sh && \
+mv /opt/90-environment.sh /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /var/lib/apt/lists/*

@@ -1,0 +1,38 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              version           3.6
+set              comp_name         intelpython3
+set              base              /opt/${vendor}
+set              root              ${base}/${comp_name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) Python 3 (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) Python 3 (version $version) to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64_2019]} {prereq intel/mkl_2019}
+if {![is-loaded intel/mkl_2019]} {prereq intel/mkl_ilp64_2019}
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+
+prepend-path      PYTHONPATH        ${root}/lib/python3.6
+prepend-path      PYTHONPATH        ${root}/lib/python3.6/site-packages
+
+prepend-path      MANPATH           ${root}/share/man
+
+prepend-path      ACLOCAL_PATH      ${root}/share/aclocal

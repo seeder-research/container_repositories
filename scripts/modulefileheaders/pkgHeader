@@ -1,0 +1,1 @@
+prepend-path        PKG_CONFIG_PATH            ${root}/@pathdir@:${PKG_CONFIG_PATH}

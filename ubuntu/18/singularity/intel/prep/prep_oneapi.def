@@ -1,0 +1,13 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export YEAR=2023
+export INTEL_REPO_LINK=https://apt.repos.intel.com/intel-gpg-keys
+export KEYFILE=GPG-PUB-KEY-INTEL-SW-PRODUCTS-${YEAR}.PUB
+cd /opt && \
+wget --no-check-certificate \
+  ${INTEL_REPO_LINK}/${KEYFILE} && \
+apt-key add /opt/${KEYFILE} && \
+rm -rf \
+  /opt/${KEYFILE}

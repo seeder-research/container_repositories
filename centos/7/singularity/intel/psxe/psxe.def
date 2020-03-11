@@ -1,0 +1,10 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+
+%post
+cd /opt && \
+yum install -y \
+  intel-icc-runtime-2019.4-243 \
+  intel-ifort-runtime-2019.4-243

@@ -1,0 +1,38 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+python    /opt
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+add-apt-repository "deb https://apt.repos.intel.com/intelpython binary/" && \
+apt-get update && \
+apt-get install -y \
+  intelpython2 && \
+cd /usr/local/modulefiles/dev/intel && \
+mv /opt/python ./ && \
+rm -rf \
+  /var/lib/apt/lists/*
+
+%appenv mklpython
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/python
+
+%appenv fullpython
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi
+module load intel/python

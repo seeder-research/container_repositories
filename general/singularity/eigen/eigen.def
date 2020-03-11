@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh && \
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev && \
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  suitesparse \
+  boost && \
+export UMFPACKDIR=${SUITESPARSE_ROOT} && \
+export CHOLMODDIR=${SUITESPARSE_ROOT} && \
+export EIGEN_VER=3.3.7 && \
+export BOOST_ROOT=${LIBBOOST_ROOT} &&\
+export CC=gcc && \
+export CXX=g++ && \
+export FC=gfortran && \
+export F77=gfortran && \
+export F90=gfortran && \
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://gitlab.com/libeigen/eigen/-/archive/${EIGEN_VER}/eigen-${EIGEN_VER}.tar.bz2 && \
+tar xf /opt/eigen-${EIGEN_VER}.tar.bz2 && \
+mkdir -p /opt/eigen-${EIGEN_VER}/builddir && \
+cd /opt/eigen-${EIGEN_VER}/builddir && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/eigen/${EIGEN_VER} \
+  -DINCLUDE_INSTALL_DIR="${SUITESPARSE_ROOT}/include" \
+  -DLIB_INSTALL_DIR="${SUITESPARSE_ROOT}/lib" \
+  -DBOOST_DIR=${LIBBOOST_ROOT} \
+  -DBOOST_ROOT=${LIBBOOST_ROOT} \
+  /opt/eigen-${EIGEN_VER} && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/eigen && \
+cd /usr/local/modulefiles/dev/eigen && \
+sed -i "s/@pver@/${EIGEN_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/eigen/${EIGEN_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${EIGEN_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/eigen-${EIGEN_VER}

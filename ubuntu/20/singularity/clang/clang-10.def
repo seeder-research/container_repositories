@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /.singularity.d/env/90-environment.sh
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" >> /etc/apt/sources.list.d/clang_10.list
+echo "deb-src http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main" >> /etc/apt/sources.list.d/clang_10.list
+apt update
+apt-get install -y \
+  clang-10-doc \
+  clang-format-10 \
+  clang-tidy-10 \
+  clang-tools-10 \
+  clang-10 \
+  clangd-10 \
+  libc++-10-dev \
+  libc++1-10 \
+  libc++abi-10-dev \
+  libc++abi1-10 \
+  libclang-10-dev \
+  libclang-common-10-dev \
+  libclang1-10 \
+  libfuzzer-10-dev \
+  libllvm-10-ocaml-dev \
+  libllvm10 \
+  libomp-10-dev \
+  libomp5-10 \
+  lld-10 \
+  lldb-10 \
+  llvm-10-dev \
+  llvm-10-doc \
+  llvm-10-examples \
+  llvm-10-runtime \
+  llvm-10 \
+  python3-clang-10 && \
+rm -rf \
+  /var/lib/apt/lists/*

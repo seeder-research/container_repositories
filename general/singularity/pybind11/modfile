@@ -1,0 +1,25 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              pybind11
+set              version           @pver@
+set              pyver             @pyver@
+set              root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+setenv            PYBIND11_ROOT     ${root}
+
+prepend-path      CPATH             ${root}/include
+prepend-path      INCLUDE_PATH      ${root}/include
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/share/cmake/pybind11
+
+prepend-path      PYTHONPATH        ${root}/lib/python${pyver}/site-packages

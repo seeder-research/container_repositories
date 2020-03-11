@@ -1,0 +1,16 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+build_tensorflow.sh    /opt
+
+%appenv tensorflow
+export CONDA_DIR=/opt/conda-tf
+export PATH=${CONDA_DIR}/bin:$PATH
+
+%post
+/bin/bash /opt/build_tensorflow.sh
+if [ -e /opt/Miniconda2-latest-Linux-x86_64.sh ]; then
+    rm -f /opt/Miniconda2-latest-Linux-x86_64.sh
+fi
+rm -f /opt/build_*.sh

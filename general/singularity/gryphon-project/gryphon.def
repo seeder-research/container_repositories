@@ -1,0 +1,17 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+master               /opt/master
+
+%post
+cd /usr/local/ && \
+git clone https://github.com/seeder-research/gryphon-project && \
+mkdir -p /usr/local/modulefiles/gryphon-project && \
+cd /usr/local/modulefiles/gryphon-project && \
+mv /opt/master \
+  /usr/local/modulefiles/gryphon-project/master && \
+touch /usr/local/modulefiles/gryphon-project/.version && \
+echo "#%Module" >> /usr/local/modulefiles/gryphon-project/.version && \
+echo "set ModulesVersion master" >> /usr/local/modulefiles/gryphon-project/.version && \
+echo "module load gryphon-project" >> /.singularity.d/env/90-singularity.sh

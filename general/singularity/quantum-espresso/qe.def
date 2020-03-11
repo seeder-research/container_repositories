@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%appenv qe
+. /etc/profile.d/modules.sh
+module load openmpi intel/mkl hdf5 libbeef elpa quantum-espresso
+
+%files
+modfile    /opt
+
+%post
+export QE_VER=6.7.0
+export QE_GPU_VER=6.7
+. /etc/profile.d/modules.sh && \
+module load openmpi \
+  intel/mkl \
+  hdf5 \
+  elpa \
+  libbeef
+export ELPA_DIR=${ELPA_ROOT}
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt/ && \
+wget --no-check-certificate \
+  https://github.com/QEF/q-e/archive/refs/tags/qe-${QE_VER}.tar.gz && \
+wget --no-check-certificate \
+  https://gitlab.com/QEF/q-e-gpu/-/archive/qe-gpu-${QE_GPU_VER}/q-e-gpu-qe-gpu-${QE_GPU_VER}.tar.bz2 && \
+tar xf /opt/qe-${QE_VER}.tar.gz && \
+cd /opt/q-e-qe-${QE_VER} && \
+./configure FC=gfortran CC=gcc --prefix=/usr/local/quantum-espresso/${QE_VER} \
+  --enable-parallel \
+  --enable-shared \
+  --with-scalapack=yes \
+  --with-libbeef=yes \
+  --with-libbeef-prefix=${LIBBEEF_ROOT}/lib \
+  --with-elpa-version=2019 \
+  --with-hdf5 \
+  --with-hdf5-include=${LIBHDF5_ROOT}/include && \
+make -j4 all && \
+make install && \
+cd /opt && \
+mkdir -p /usr/local/modulefiles/quantum-espresso && \
+sed -i "s/@pver@/${QE_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/quantum-espresso/${QE_VER} && \
+echo "#%Module" > /usr/local/modulefiles/quantum-espresso/.version && \
+echo set ModulesVersion "${QE_VER}" >> /usr/local/modulefiles/quantum-espresso/.version && \
+rm -rf /opt/q-e-qe-${QE_VER} \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/qe-${QE_VER}.tar.gz \
+  /opt/q-e-gpu-qe-gpu-${QE_GPU_VER}.tar.bz2 

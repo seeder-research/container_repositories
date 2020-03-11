@@ -1,0 +1,36 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              dolfin
+set              version           @pver@
+set              pyver             @pyver@
+set              root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prereq            intel/mkl
+prereq            boost
+prereq            suitesparse
+prereq            slepc4py
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      CPATH             ${root}/include
+prepend-path      INCLUDE_PATH      ${root}/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+
+prepend-path      CMAKE_PREFIX_PATH ${root}/share/${name}/cmake
+
+prepend-path      PYTHONPATH        ${root}/lib/python${pyver}/site-packages/fenics_dolfin-2019.1.0-py3.8-linux-x86_64.egg

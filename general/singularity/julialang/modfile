@@ -1,0 +1,26 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              julia
+set              version           @pver@
+set              root              /usr/local/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      CPATH             ${root}/include
+prepend-path      INCLUDE_PATH      ${root}/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path      MANPATH           ${root}/share/man

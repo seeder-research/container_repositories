@@ -1,0 +1,93 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                    /opt
+makefile.include           /opt
+vasp.5.4.4.tar.gz          /opt
+patch.5.4.4.16052018.gz    /opt
+potpaw_GGA.tar.gz          /opt
+potpaw_LDA.54.tar.gz       /opt
+potpaw_PBE.54.tar.gz       /opt
+potUSPP_GGA.tar.gz         /opt
+potUSPP_LDA.tar.gz         /opt
+
+%appenv vasp
+. /etc/profile.d/modules.sh
+module load openmpi intel/mkl libbeef wannier90 elpa vasp
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+module load \
+  openmpi \
+  intel/mkl \
+  libbeef \
+  wannier90 \
+  elpa
+export VASP_VER=5.4.4
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+gunzip /opt/patch.${VASP_VER}.16052018.gz && \
+tar xf /opt/vasp.${VASP_VER}.tar.gz && \
+mkdir -p /usr/local/vasp/${VASP_VER} && \
+cd /opt/vasp.${VASP_VER} && \
+patch -p0 < /opt/patch.5.4.4.16052018 && \
+mv /opt/makefile.include \
+  /opt/vasp.${VASP_VER} && \
+make \
+  gam \
+  ncl \
+  std \
+  gpu \
+  gpu_ncl && \
+mkdir -p /usr/local/vasp/5.4.4/bin && \
+mv bin/* \
+  /usr/local/vasp/5.4.4/bin && \
+mkdir -p /usr/local/modulefiles/vasp && \
+cd /usr/local/modulefiles/vasp && \
+sed -i "s/@pver@/${VASP_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/vasp/${VASP_VER} && \
+echo "#%Module" > /usr/local/modulefiles/vasp/.version && \
+echo set ModulesVersion "${VASP_VER}" >> /usr/local/modulefiles/vasp/.version && \
+cd /opt && \
+wget --quiet --no-check-certificate https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
+/bin/bash /opt/Miniconda2-latest-Linux-x86_64.sh -f -b -p /opt/conda && \
+rm /opt/Miniconda2-latest-Linux-x86_64.sh && \
+/opt/conda/bin/conda config --append channels conda-forge && \
+/opt/conda/bin/conda install -y \
+  phonopy \
+  python=2.7 && \
+/opt/conda/bin/conda install -y \
+  -c atztogo \
+  phono3py && \
+/opt/conda/bin/conda clean -yt && \
+mkdir -p /opt/potpaw_GGA && \
+cd /opt/potpaw_GGA && \
+tar xf /opt/potpaw_GGA.tar.gz && \
+rm -rf /opt/potpaw_GGA.tar.gz && \
+mkdir -p /opt/potpaw_LDA.54 && \
+cd /opt/potpaw_LDA.54 && \
+tar xf /opt/potpaw_LDA.54.tar.gz && \
+rm -rf /opt/potpaw_LDA.54.tar.gz && \
+mkdir -p /opt/potpaw_PBE.54 && \
+cd /opt/potpaw_PBE.54 && \
+tar xf /opt/potpaw_PBE.54.tar.gz && \
+rm -rf /opt/potpaw_PBE.54.tar.gz && \
+mkdir -p /opt/potUSPP_GGA && \
+cd /opt/potUSPP_GGA && \
+tar xf /opt/potUSPP_GGA.tar.gz && \
+rm -rf /opt/potUSPP_GGA.tar.gz && \
+mkdir -p /opt/potUSPP_LDA && \
+cd /opt/potUSPP_LDA && \
+tar xf /opt/potUSPP_LDA.tar.gz && \
+rm -rf /opt/potUSPP_LDA.tar.gz && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/vasp.${VASP_VER}.tar.gz \
+  /opt/patch.${VASP_VER}.16052018 \
+  /opt/vasp.${VASP_VER}

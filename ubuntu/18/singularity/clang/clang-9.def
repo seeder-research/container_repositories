@@ -1,0 +1,40 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /.singularity.d/env/90-environment.sh
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main" >> /etc/apt/sources.list.d/clang_9.list
+echo "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main" >> /etc/apt/sources.list.d/clang_9.list
+apt update
+apt-get install -y \
+  clang-9-doc \
+  clang-format-9 \
+  clang-tidy-9 \
+  clang-tools-9 \
+  clang-9 \
+  clangd-9 \
+  libc++-9-dev \
+  libc++1-9 \
+  libc++abi-9-dev \
+  libc++abi1-9 \
+  libclang-9-dev \
+  libclang-common-9-dev \
+  libclang1-9 \
+  libfuzzer-9-dev \
+  libllvm-9-ocaml-dev \
+  libllvm9 \
+  libomp-9-dev \
+  libomp5-9 \
+  lld-9 \
+  lldb-9 \
+  llvm-9-dev \
+  llvm-9-doc \
+  llvm-9-examples \
+  llvm-9-runtime \
+  llvm-9 \
+  python-clang-9 && \
+rm -rf \
+  /var/lib/apt/lists/*

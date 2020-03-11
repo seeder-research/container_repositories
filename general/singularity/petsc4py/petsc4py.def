@@ -1,0 +1,55 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /.singularity.d/env/90-environment.sh
+. /etc/profile
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  intel/mkl \
+  metis \
+  parmetis \
+  suitesparse \
+  boost \
+  hypre \
+  scotch \
+  petsc
+export PETSC_VER=3.13.0
+export PETSC_DIR=${PETSC_ROOT}
+export PYVER=3.8
+export SEDSTR='s/@pyver@/'${PYVER}'/'
+conda install -y \
+  cython
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://bitbucket.org/petsc/petsc4py/downloads/petsc4py-${PETSC_VER}.tar.gz && \
+tar xf /opt/petsc4py-${PETSC_VER}.tar.gz && \
+cd /opt/petsc4py-${PETSC_VER} && \
+/opt/conda/bin/python \
+  setup.py \
+  install \
+  --prefix=/usr/local/petsc4py/${PETSC_VER} && \
+mkdir -p /usr/local/modulefiles/dev/petsc4py && \
+sed -i "s/@pver@/${PETSC_VER}/g" /opt/modfile && \
+sed -e ${SEDSTR} -i /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/petsc4py/${PETSC_VER} && \
+cd /usr/local/modulefiles/dev/petsc4py && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PETSC_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/petsc4py-${PETSC_VER} \
+  /opt/petsc4py-${PETSC_VER}.tar.gz

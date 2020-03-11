@@ -1,0 +1,45 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export TERM=xterm
+export PBSVER=v19.1.2
+export OMPVER_MAJOR=4
+export OMPVER_MINOR=0
+export OMPVER_REV=5
+export OMPVER=${OMPVER_MAJOR}.${OMPVER_MINOR}.${OMPVER_REV}
+export MODULEPATH=/usr/local/modulefiles/dev:$MODULEPATH
+module load pbspro && \
+cd /opt && \
+wget --no-check-certificate \
+  https://download.open-mpi.org/release/open-mpi/v${OMPVER_MAJOR}.${OMPVER_MINOR}/openmpi-${OMPVER}.tar.bz2 && \
+tar xf /opt/openmpi-${OMPVER}.tar.bz2 && \
+cd /opt/openmpi-${OMPVER} && \
+./configure \
+  --prefix=/usr/local/openmpi/${OMPVER} \
+  --with-tm=/opt/pbspro/${PBSVER} \
+  --with-hwloc=internal \
+  --enable-hwloc-pci \
+  --enable-mpi1-compatibility \
+  --enable-mpi-cxx \
+  --enable-cxx-exceptions \
+  --enable-mpi-fortran \
+  --enable-shared \
+  --enable-static && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/openmpi && \
+cd /usr/local/modulefiles/dev/openmpi && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${OMPVER}" >> .version && \
+sed -i "s/@pver@/${OMPVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/openmpi/${OMPVER} && \
+cd /opt && \
+rm -rf \
+  /opt/openmpi-${OMPVER} \
+  /opt/openmpi-${OMPVER}.tar.bz2

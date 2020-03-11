@@ -1,0 +1,30 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile     /opt
+
+%post
+export FLEXVER=2.6.4
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/westes/flex/files/981163/flex-${FLEXVER}.tar.gz && \
+tar xf /opt/flex-${FLEXVER}.tar.gz && \
+cd /opt/flex-${FLEXVER} && \
+./autogen.sh && \
+sed -i "/math.h/a #include <malloc.h>" src/flexdef.h && \
+./configure \
+  --prefix=/usr/local/flex/${FLEXVER} \
+  --enable-static \
+  --enable-shared && \
+make all install && \
+mkdir -p /usr/local/modulefiles/dev/flex && \
+sed -i "s/@pver@/${FLEXVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/flex/${FLEXVER} && \
+cd /usr/local/modulefiles/dev/flex && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${FLEXVER}" >> .version && \
+rm -rf \
+  /opt/flex-${FLEXVER} \
+  /opt/flex-${FLEXVER}.tar.gz

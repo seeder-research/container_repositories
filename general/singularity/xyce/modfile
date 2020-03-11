@@ -1,0 +1,37 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set              name              xyce
+set              version           @pver@
+set              root              /usr/local/$name/$version
+set              admsHeaders       ${root}/share/xml
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."
+
+prereq openmpi
+prereq intel/mkl
+prereq adms
+prereq suitesparse
+prereq trilinos
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+set               admsCmd           [concat "admsXml" "-e" ${admsHeaders}/xyceVersion.xml]
+set               admsCmd           [concat ${admsCmd} "-e" ${admsHeaders}/xyceBasicTemplates.xml]
+set               admsCmd           [concat ${admsCmd} "-e" ${admsHeaders}/xyceHeaderFile.xml]
+set               admsCmd           [concat ${admsCmd} "-e" ${admsHeaders}/xyceImplementationFile.xml]
+
+set-alias         admsCompile       ${admsCmd}

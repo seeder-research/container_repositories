@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile     /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles/dev
+module load \
+  bison \
+  flex
+export ADMSVER=2.3.7
+cd /opt && \
+git clone \
+  https://github.com/Qucs/ADMS.git \
+  -b develop \
+  adms && \
+cd /opt/adms && \
+sh bootstrap.sh && \
+./configure \
+  --prefix=/usr/local/adms/${ADMSVER} \
+  --enable-maintainer-mode && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/adms && \
+sed -i "s/@pver@/${ADMSVER}/g" /opt/modfile && \
+mv /opt/modfile /usr/local/modulefiles/adms/${ADMSVER} && \
+cd /usr/local/modulefiles/adms && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${ADMSVER}" >> .version && \
+echo export MODULEPATH=/usr/local/modulefiles:'$'{MODULEPATH} >> /.singularity.d/env/90-environment.sh
+rm -rf \
+  /opt/adms

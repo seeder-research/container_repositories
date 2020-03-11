@@ -1,0 +1,26 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export LIBBEEFVER=0.1.2
+cd /opt && \
+git clone https://github.com/vossjo/libbeef.git && \
+cd /opt/libbeef && \
+./configure \
+  --prefix=/usr/local/libbeef/${LIBBEEFVER} \
+  --enable-portable-binary \
+  CC=gcc && \
+make && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/libbeef && \
+cd /usr/local/modulefiles/dev/libbeef && \
+sed -i "s/@pver@/${LIBBEEFVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/libbeef/${LIBBEEFVER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/libbeef/.version && \
+echo set ModulesVersion "${LIBBEEFVER}" >> /usr/local/modulefiles/dev/libbeef/.version
+rm -rf \
+  /opt/libbeef

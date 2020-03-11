@@ -1,0 +1,10 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export CONDA_VERSION=2019.10
+cd /opt && \
+wget --quiet --no-check-certificate https://repo.continuum.io/archive/Anaconda2-${CONDA_VERSION}-Linux-x86_64.sh && \
+/bin/bash /opt/Anaconda2-${CONDA_VERSION}-Linux-x86_64.sh -f -b -p /opt/conda && \
+rm /opt/Anaconda2-${CONDA_VERSION}-Linux-x86_64.sh && \
+echo export PATH=/opt/conda/bin:'$PATH' > /etc/profile.d/conda.sh

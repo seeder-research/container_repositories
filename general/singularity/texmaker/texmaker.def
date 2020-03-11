@@ -1,0 +1,30 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile                   /opt
+texmaker-5.0.4.tar.bz2    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export TEXMAKER_VER=5.0.4
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  qt
+cd /opt && \
+tar xf /opt/texmaker-${TEXMAKER_VER}.tar.bz2 && \
+cd /opt/texmaker-${TEXMAKER_VER} && \
+qmake \
+  PREFIX=/usr/local/texmaker/${TEXMAKER_VER} \
+  /opt/texmaker-${TEXMAKER_VER}/texmaker.pro && \
+make && \
+make install && \
+mkdir -p /usr/local/modulefiles/texmaker && \
+cd /usr/local/modulefiles/texmaker && \
+sed -i "s/@pver@/${TEXMAKER_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/texmaker/${TEXMAKER_VER} && \
+echo "#%Module" > /usr/local/modulefiles/texmaker/.version && \
+echo set ModulesVersion "${TEXMAKER_VER}" >> /usr/local/modulefiles/texmaker/.version && \
+rm -rf \
+  /opt/texmaker-${TEXMAKER_VER}*

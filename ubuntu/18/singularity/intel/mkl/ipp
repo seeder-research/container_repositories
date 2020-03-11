@@ -1,0 +1,30 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              comp_name         ipp
+set              version           @pver@
+set              base              /opt/${vendor}/compilers_and_libraries_${version}/linux
+set              root              ${base}/${comp_name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) Integrated Performance Primitives (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) Integrated Performance Primitives (version $version) to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64]} {prereq intel/mkl}
+if {![is-loaded intel/mkl]} {prereq intel/mkl_ilp64}
+
+setenv            IPPROOT           ${root}
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64_lin
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64_lin
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64_lin
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+

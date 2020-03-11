@@ -1,0 +1,63 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+compiler  /opt
+daal      /opt
+iomp      /opt
+ipp       /opt
+mkl       /opt
+mkl_ilp64 /opt
+mpi       /opt
+tbb       /opt
+
+%post
+tee > /opt/oneAPI.repo << EOF
+[oneAPI]
+name=Intel(R) oneAPI repository
+baseurl=https://yum.repos.intel.com/oneapi
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+EOF
+mv /opt/oneAPI.repo /etc/yum.repos.d/oneAPI.repo
+yum install -y \
+  intel-basekit \
+  intel-hpckit && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+mv /opt/compiler \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/daal \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/iomp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/ipp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl_ilp64 \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mpi \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/tbb \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/python \
+  /usr/local/modulefiles/dev/intel/.
+
+%appenv mklpython
+. /etc/profile
+module load mkl
+module load daal
+module load tbb
+module load ipp
+module load python
+
+%appenv fullmpi
+. /etc/profile
+module load mkl
+module load daal
+module load tbb
+module load ipp
+module load python
+module load mpi

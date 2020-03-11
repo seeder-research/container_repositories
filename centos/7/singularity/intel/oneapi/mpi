@@ -1,0 +1,69 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              mpi
+set              version           latest
+set              root              /opt/intel/inteloneapi/${name}/${latest}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+set               i_mpi_root        ${root}
+setenv            I_MPI_ROOT        ${i_mpi_root}
+
+prepend-path      PATH              ${i_mpi_root}/bin
+
+prepend-path      CPATH             ${i_mpi_root}/include
+prepend-path      INCLUDE_PATH      ${i_mpi_root}/include
+
+prepend-path      LD_LIBRARY_PATH   ${i_mpi_root}/lib
+prepend-path      LIBRARY_PATH      ${i_mpi_root}/lib
+prepend-path      LD_RUN_PATH       ${i_mpi_root}/lib
+
+prepend-path      LD_LIBRARY_PATH   ${i_mpi_root}/lib/release
+prepend-path      LIBRARY_PATH      ${i_mpi_root}/lib/release
+prepend-path      LD_RUN_PATH       ${i_mpi_root}/lib/release
+
+prepend-path      CLASSPATH         ${i_mpi_root}/lib/mpi.jar
+
+prepend-path      MANPATH           ${i_mpi_root}/man
+
+if { [info exists ::env(I_MPI_OFI_LIBRARY_INTERNAL)] } {
+    set i_mpi_ofi_library_internal $::env(I_MPI_OFI_LIBRARY_INTERNAL)
+} else {
+    set i_mpi_ofi_library_internal "yes"
+}
+
+switch -regexp -- $i_mpi_ofi_library_internal {
+    0|no|off|disable {
+    }
+    default {
+        setenv              FI_PROVIDER_PATH       ${i_mpi_root}/libfabric/lib/prov
+
+        prepend-path        PATH                   ${i_mpi_root}/libfabric/bin
+
+        prepend-path        LD_LIBRARY_PATH        ${i_mpi_root}/libfabric/lib
+        prepend-path        LIBRARY_PATH           ${i_mpi_root}/libfabric/lib
+        prepend-path        LD_RUN_PATH            ${i_mpi_root}/libfabric/lib
+    }
+}
+
+#setenv I_MPI_JOB_TIMEOUT               7200
+setenv I_MPI_HYDRA_BOOTSTRAP           pbsdsh
+setenv I_MPI_HYDRA_BOOTSTRAP_AUTOFORK  disable
+setenv I_MPI_HYDRA_BRANCH_COUNT        32
+setenv MPI_UNIVERSE_SIZE               SYSTEM
+setenv I_MPI_PIN                       yes
+setenv I_MPI_PIN_DOMAIN                omp
+
+setenv I_MPI_FC  ifort
+setenv I_MPI_F90 ifort
+setenv I_MPI_CC  icc
+setenv I_MPI_CXX icpc
+

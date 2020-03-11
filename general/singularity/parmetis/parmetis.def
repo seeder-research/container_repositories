@@ -1,0 +1,65 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  metis
+export PARMETISVER=4.0.3
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/parmetis-${PARMETISVER}.tar.gz && \
+tar xf /opt/parmetis-${PARMETISVER}.tar.gz && \
+cd /opt/parmetis-${PARMETISVER} && \
+make config \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} && \
+make \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} && \
+make install \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} && \
+cd /opt && \
+rm -rf /opt/parmetis-${PARMETISVER} && \
+cd /opt && \
+tar xf /opt/parmetis-${PARMETISVER}.tar.gz && \
+cd /opt/parmetis-${PARMETISVER} && \
+make config \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} \
+  shared=1 && \
+make \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} \
+  shared=1 && \
+make install \
+  cc="mpicc -DIDXTYPEWIDTH=64" \
+  cxx="mpicxx -DIDXTYPEWIDTH=64" \
+  prefix=/usr/local/parmetis/${PARMETISVER} \
+  shared=1 && \
+mkdir /usr/local/modulefiles/dev/parmetis && \
+cd /usr/local/modulefiles/dev/parmetis && \
+sed -i "s/@pver@/${PARMETISVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/parmetis/${PARMETISVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PARMETISVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/parmetis-*

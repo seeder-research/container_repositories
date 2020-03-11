@@ -1,0 +1,63 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+compiler  /opt
+daal      /opt
+iomp      /opt
+ipp       /opt
+mkl       /opt
+mkl_ilp64 /opt
+mpi       /opt
+python    /opt
+tbb       /opt
+
+%post
+cd /opt && \
+wget --no-check-certificate \
+  https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+apt-key add /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB && \
+add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" && \
+apt-get update && \
+apt-get install -y \
+  intel-basekit \
+  intel-hpckit && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+mv /opt/compiler \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/daal \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/iomp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/ipp \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl_ilp64 \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mpi \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/tbb \
+  /usr/local/modulefiles/dev/intel/. && \
+mv /opt/python \
+  /usr/local/modulefiles/dev/intel/. && \
+rm -rf \
+  /opt/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+  /var/lib/apt/lists/*
+
+%appenv mklpython
+. /etc/profile
+module load intel/mkl
+module load intel/daal
+module load intel/tbb
+module load intel/ipp
+module load intel/python
+
+%appenv fullmpi
+. /etc/profile
+module load intel/mkl
+module load intel/daal
+module load intel/tbb
+module load intel/ipp
+module load intel/python
+module load intel/mpi

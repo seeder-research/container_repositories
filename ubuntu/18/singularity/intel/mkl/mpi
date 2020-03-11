@@ -1,0 +1,58 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              comp_name         mpi
+set              version           @pver@
+set              base              /opt/${vendor}/compilers_and_libraries_${version}/linux
+set              root              ${base}/${comp_name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) MPI (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) MPI (version $version) to your environment variables."
+
+set               i_mpi_root        ${root}
+setenv            I_MPI_ROOT        ${i_mpi_root}
+
+prepend-path      PATH              ${i_mpi_root}/intel64/bin
+prepend-path      PATH              ${i_mpi_root}/intel64/libfabric/bin
+
+prepend-path      CPATH             ${i_mpi_root}/intel64/include
+prepend-path      INCLUDE_PATH      ${i_mpi_root}/intel64/include
+
+prepend-path      LD_LIBRARY_PATH   ${i_mpi_root}/intel64/lib
+prepend-path      LIBRARY_PATH      ${i_mpi_root}/intel64/lib
+prepend-path      LD_RUN_PATH       ${i_mpi_root}/intel64/lib
+
+prepend-path      LD_LIBRARY_PATH   ${i_mpi_root}/intel64/lib/release
+prepend-path      LIBRARY_PATH      ${i_mpi_root}/intel64/lib/release
+prepend-path      LD_RUN_PATH       ${i_mpi_root}/intel64/lib/release
+
+prepend-path      LD_LIBRARY_PATH   ${i_mpi_root}/intel64/libfabric/lib
+prepend-path      LD_RUN_PATH       ${i_mpi_root}/intel64/libfabric/lib
+prepend-path      LIBRARY_PATH      ${i_mpi_root}/intel64/libfabric/lib
+
+prepend-path      CLASSPATH         ${i_mpi_root}/intel64/lib/mpi.jar
+
+prepend-path      MANPATH           ${i_mpi_root}/man
+
+prepend-path      FI_PROVIDER_PATH  ${i_mpi_root}/intel64/libfabric/lib/prov
+
+#setenv I_MPI_JOB_TIMEOUT               7200
+setenv I_MPI_HYDRA_BOOTSTRAP           pbsdsh
+setenv I_MPI_HYDRA_BOOTSTRAP_AUTOFORK  disable
+setenv I_MPI_HYDRA_BRANCH_COUNT        32
+setenv MPI_UNIVERSE_SIZE               SYSTEM
+setenv I_MPI_PIN                       yes
+setenv I_MPI_PIN_DOMAIN                omp
+
+setenv I_MPI_FC  ifort
+setenv I_MPI_F90 ifort
+setenv I_MPI_CC  icc
+setenv I_MPI_CXX icpc
+

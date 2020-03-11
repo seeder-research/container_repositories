@@ -1,0 +1,29 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              daal
+set              version           latest
+set              root              /opt/intel/oneapi/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64]} {prereq intel/mkl}
+if {![is-loaded intel/mkl]} {prereq intel/mkl_ilp64}
+
+setenv            DAALROOT          ${root}
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include
+
+prepend-path      CLASSPATH         ${root}/lib/daal.jar

@@ -1,0 +1,47 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export WANNIER90VER=2.1
+export MPIVER=1.8.8
+module load \
+  openmpi \
+  intel/mkl
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/wannier-developers/wannier90/archive/v${WANNIER90VER}.tar.gz && \
+tar xf /opt/v${WANNIER90VER}.tar.gz && \
+cd /opt/wannier90-${WANNIER90VER} && \
+echo "F90=gfortran" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "COMMS=mpi" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "MPIF90=mpif90" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "FCOPTS=-O2 -I"'$'"(MKLROOT)/include/intel64/lp64 -m64 -I"'$'"(MKLROOT)/include -I/usr/local/openmpi/${MPIVER}/include" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "LDOPTS=-O2" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "LIBDIR = "'$'"(MKLROOT)/lib/intel64_lin /usr/local/openmpi/${MPIVER}/lib" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+echo "LIBS   = "'$'"(MKLROOT)/lib/intel64/libmkl_blas95_lp64.a "'$'"(MKLROOT)/lib/intel64/libmkl_lapack95_lp64.a -L/usr/local/openmpi/${MPIVER}/lib -L"'$'"(MKLROOT)/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_cdft_core -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lmkl_blacs_openmpi_lp64 -lstdc++ -lmpi -lpthread -lm -ldl" >> /opt/wannier90-${WANNIER90VER}/make.inc && \
+make w90pov w90vdw lib default && \
+mkdir -p /usr/local/wannier90/${WANNIER90VER}.0/bin && \
+mkdir -p /usr/local/wannier90/${WANNIER90VER}.0/lib && \
+mv *.x /usr/local/wannier90/${WANNIER90VER}.0/bin/. && \
+mv libwannier.a /usr/local/wannier90/${WANNIER90VER}.0/lib/. && \
+mkdir -p /usr/local/modulefiles/dev/wannier90 && \
+cd /usr/local/modulefiles/dev/wannier90 && \
+sed -i "s/@pver@/${WANNIER90VER}.0/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/wannier90/${WANNIER90VER}.0 && \
+echo "#%Module" > /usr/local/modulefiles/dev/wannier90/.version && \
+echo set ModulesVersion "${WANNIER90VER}.0" >> /usr/local/modulefiles/dev/wannier90/.version
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/v${WANNIER90VER}.tar.gz \
+  /opt/wannier90-${WANNIER90VER}

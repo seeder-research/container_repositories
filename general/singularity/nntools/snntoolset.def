@@ -1,0 +1,23 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+build_snntoolset.sh    /opt
+genn_mod               /opt
+nest_mod               /opt
+
+%appenv snntoolset
+export CONDA_DIR=/opt/conda-snntoolset
+export PATH=${CONDA_DIR}/bin:$PATH
+. /etc/profile.d/modules.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  genn \
+  nest
+
+%post
+/bin/bash /opt/build_snntoolset.sh
+if [ -e /opt/Miniconda3-latest-Linux-x86_64.sh ]; then
+    rm -f /opt/Miniconda3-latest-Linux-x86_64.sh
+fi
+rm -f /opt/build_*.sh

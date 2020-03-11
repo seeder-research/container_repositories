@@ -1,0 +1,88 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  intel/mkl \
+  metis \
+  parmetis \
+  suitesparse \
+  boost \
+  scotch \
+  hypre \
+  mumps \
+  combblas \
+  superlu_dist
+export PETSC_VER=3.13.1
+conda install -y \
+  cython
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VER}.tar.gz && \
+tar xf petsc-${PETSC_VER}.tar.gz && \
+cd /opt/petsc-${PETSC_VER} && \
+sed -i "s/LargeDiag_AWPM/LargeDiag_HWPM/g" /opt/petsc-${PETSC_VER}/src/mat/impls/aij/mpi/superlu_dist/superlu_dist.c && \
+./configure \
+  COPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
+  CXXOPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
+  FOPTFLAGS='-O3 -m64 -fopenmp -fPIC' \
+  --prefix=/usr/local/petsc/${PETSC_VER} \
+  --with-mpi=1 \
+  --with-mpi-dir=${MPI_ROOT} \
+  --with-hdf5=1 \
+  --with-hdf5-dir=${LIBHDF5_ROOT} \
+  --with-hypre=1 \
+  --with-hypre-dir=${HYPRE_ROOT} \
+  --with-netcdf=1 \
+  --with-netcdf-dir=${NETCDF_ROOT} \
+  --with-pnetcdf=1 \
+  --with-pnetcdf-dir=${LIBPNETCDF_ROOT} \
+  --with-metis=1 \
+  --with-metis-dir=${METIS_ROOT} \
+  --with-mumps=1 \
+  --with-mumps-dir=${MUMPS_ROOT} \
+  --with-parmetis=1 \
+  --with-parmetis-dir=${PARMETIS_ROOT} \
+  --with-ptscotch=1 \
+  --with-ptscotch-dir=${SCOTCH_ROOT} \
+  --with-scalapack=1 \
+  --with-scalapack-lib="-L${MKLROOT}/lib/intel64_lin -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential" \
+  --with-suitesparse=1 \
+  --with-suitesparse-dir=${SUITESPARSE_ROOT} \
+  --with-superlu_dist=1 \
+  --with-superlu_dist-dir=${SUPERLU_DIST_ROOT} \
+  --with-boost=1 \
+  --with-boost-dir=${LIBBOOST_ROOT} \
+  --with-python=1 \
+  --with-python-dir=/opt/conda \
+  --with-zlib=1 \
+  --enable-shared=yes \
+  --enable-static=yes && \
+make all && \
+make install && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/petsc-${PETSC_VER} \
+  /opt/petsc-${PETSC_VER}.tar.gz && \
+mkdir -p /usr/local/modulefiles/dev/petsc && \
+cd /usr/local/modulefiles/dev/petsc && \
+sed -i "s/@pver@/${PETSC_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/petsc/${PETSC_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PETSC_VER}" >> .version

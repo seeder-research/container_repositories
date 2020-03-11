@@ -1,0 +1,41 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  intel/mkl
+export VAMPIRE_VER=5.0.1
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/richard-evans/vampire/archive/${VAMPIRE_VER}.tar.gz && \
+mkdir -p /usr/local/vampire && \
+mkdir -p /usr/local/modulefiles/vampire && \
+sed -i "s/@pver@/${VAMPIRE_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/vampire/${VAMPIRE_VER} && \
+echo "#%Module" > /usr/local/modulefiles/vampire/.version && \
+echo set ModulesVersion "${VAMPIRE_VER}" >> /usr/local/modulefiles/vampire/.version && \
+cd /opt && \
+tar xf ${VAMPIRE_VER}.tar.gz && \
+cd /opt/vampire-${VAMPIRE_VER} && \
+sed -i "s/sudo //g" makefile && \
+make -j$(nproc) all && \
+mkdir -p /etc/paths.d && \
+make install && \
+mv /opt/vampire /usr/local/vampire/${VAMPIRE_VER} && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /etc/paths.d \
+  /opt/vampire-${VAMPIRE_VER} \
+  /opt/${VAMPIRE_VER}.tar.gz

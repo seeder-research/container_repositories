@@ -1,0 +1,39 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+export TERM=xterm
+export HWLOCVER_MAJOR=1
+export HWLOCVER_MINOR=11
+export HWLOCVER_REV=13
+export HWLOCVER=${HWLOCVER_MAJOR}.${HWLOCVER_MINOR}.${HWLOCVER_REV}
+export MODULEPATH=/usr/local/modulefiles/dev:$MODULEPATH
+cd /opt && \
+wget --no-check-certificate \
+  https://download.open-mpi.org/release/hwloc/v${HWLOCVER_MAJOR}.${HWLOCVER_MINOR}/hwloc-${HWLOCVER}.tar.bz2 && \
+tar xf /opt/hwloc-${HWLOCVER}.tar.bz2 && \
+cd /opt/hwloc-${HWLOCVER} && \
+./configure \
+  --prefix=/usr/local/hwloc/${HWLOCVER} \
+  --enable-plugins \
+  --enable-shared \
+  --enable-static && \
+make -j$(nproc) && \
+make install && \
+cd /usr/local/hwloc/${HWLOCVER}/lib && \
+mkdir -p /usr/local/modulefiles/dev/hwloc && \
+ln -s libhwloc.a libhwloc_embedded.a && \
+cd /usr/local/modulefiles/dev/hwloc && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${HWLOCVER}" >> .version && \
+sed -i "s/@pver@/${HWLOCVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/hwloc/${HWLOCVER} && \
+cd /opt && \
+rm -rf \
+  /opt/hwloc-${HWLOCVER} \
+  /opt/hwloc-${HWLOCVER}.tar.bz2

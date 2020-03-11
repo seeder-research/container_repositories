@@ -1,0 +1,19 @@
+BootStrap: docker
+From: ubuntu:20.04
+
+%files
+90-environment.sh      /opt
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  apt-transport-https \
+  apt-utils && \
+apt-get upgrade -y && \
+ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+echo Asia/Singapore > /etc/timezone && \
+TZ=Asia/Singapore apt install -y tzdata && \
+rm -f /.singularity.d/env/90-environment.sh && \
+mv /opt/90-environment.sh /.singularity.d/env/90-environment.sh

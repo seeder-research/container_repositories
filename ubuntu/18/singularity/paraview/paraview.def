@@ -1,0 +1,11 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export TERM=xterm
+export DEBIAN_FRONTEND=noninteractive
+apt-get update && \
+apt-get install -y \
+  paraview && \
+rm -rf \
+  /var/lib/apt/lists/* 

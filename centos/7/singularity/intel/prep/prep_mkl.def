@@ -1,0 +1,19 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export YEAR=2019
+export INTEL_REPO_LINK=https://yum.repos.intel.com/
+export KEYFILE=GPG-PUB-KEY-INTEL-SW-PRODUCTS-${YEAR}.PUB
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/mkl/setup/intel-mkl.repo && \
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/ipp/setup/intel-ipp.repo && \
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/tbb/setup/intel-tbb.repo && \
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/daal/setup/intel-daal.repo && \
+yum-config-manager --add-repo \
+  ${INTEL_REPO_LINK}/mpi/setup/intel-mpi.repo && \
+rpm --import \
+  ${INTEL_REPO_LINK}/intel-gpg-keys/${KEYFILE}

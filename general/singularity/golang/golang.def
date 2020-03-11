@@ -1,0 +1,35 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export GOVER=1.14
+cd /opt && \
+wget --no-check-certificate https://dl.google.com/go/go${GOVER}.src.tar.gz
+wget --no-check-certificate https://dl.google.com/go/go${GOVER}.linux-amd64.tar.gz
+mkdir -p /usr/local/golang && \
+cd /usr/local/golang && \
+tar xf /opt/go${GOVER}.linux-amd64.tar.gz
+mv go goTmp
+tar xf /opt/go${GOVER}.src.tar.gz
+mv go ${GOVER}
+export GOROOT_BOOTSTRAP=/usr/local/golang/goTmp
+cd /usr/local/golang/${GOVER}/src && \
+./make.bash && \
+cd /opt && \
+rm -rf \
+  /usr/local/golang/goTmp \
+  *.tar.gz
+mkdir -p /opt/godoc 
+export GOPATH=/opt/godoc
+export PATH=/usr/local/golang/${GOVER}/bin:$PATH
+go get golang.org/x/tools/cmd/godoc && \
+mv /opt/godoc/bin/godoc /usr/local/golang/${GOVER}/bin/. && \
+rm -rf /opt/godoc
+mkdir -p /usr/local/modulefiles/dev/golang && \
+sed -i "s/@pver@/${GOVER}/g" /opt/modfile && \
+mv /opt/modfile /usr/local/modulefiles/dev/golang/${GOVER}
+echo "#%Module" > /usr/local/modulefiles/dev/golang/.version && \
+echo set ModulesVersion "${GOVER}" >> /usr/local/modulefiles/dev/golang/.version

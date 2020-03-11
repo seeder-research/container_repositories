@@ -1,0 +1,34 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+python       /opt
+
+%post
+yum install -y \
+  intelpython2-2019.4-088 && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+cd /usr/local/modulefiles/dev/intel && \
+mv /opt/python \
+  ./
+
+%appenv mklpython
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/python
+
+%appenv fullpython
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi
+module load intel/python

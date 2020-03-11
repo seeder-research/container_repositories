@@ -1,0 +1,36 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+computecpp_ce_computecpp-ce-1.1.6-centos.7-64bit.tar.gz    /opt
+ocl_icd.tgz                                                /opt
+modfile                                                    /opt
+
+%post
+export SYCL_VER=1.1.6
+yum install -y \
+  yum-plugin-copr && \
+yum copr enable -y \
+  jdanecki/intel-opencl && \
+yum install -y \
+  clinfo \
+  intel-opencl \
+  ocl-icd \
+  ocl-icd-devel \
+  opencl-headers && \
+cd /opt && \
+tar xf /opt/computecpp_ce_computecpp-ce-${SYCL_VER}-centos.7-64bit.tar.gz
+if [ ! -d /usr/local/modulefiles/dev/ComputeCpp_CE ]; then
+    mkdir -p /usr/local/modulefiles/dev/ComputeCpp_CE
+fi
+cd /usr/local/modulefiles/dev/ComputeCpp_CE && \
+sed -i "s/@pver@/${SYCL_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/ComputeCpp_CE/${SYCL_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SYCL_VER}" >> .version && \
+cd /etc/OpenCL/vendors && \
+  tar xf /opt/ocl_icd.tgz && \
+rm -f \
+  /opt/computecpp_ce_computecpp-ce-${SYCL_VER}-centos.7-64bit.tar.gz \
+  /opt/ocl_icd.tgz

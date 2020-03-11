@@ -1,0 +1,31 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+merge_files.sh    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+apt update && \
+apt-get install -y \
+  libntl-dev \
+  libssl-dev && \
+cd /opt && \
+git clone https://github.com/xfong/MTGPDC && \
+cd /opt/MTGPDC/src && \
+sed -e "s/#LIBGF2X/LIBGF2X/" -i /opt/MTGPDC/src/Makefile && \
+sed -e "s/#LIBGMP/LIBGMP/" -i /opt/MTGPDC/src/Makefile && \
+make all && \
+mkdir -p /usr/local/mtgpdc/0.3.1/bin && \
+mv /opt/MTGPDC/src/mtgp32dc /usr/local/mtgpdc/0.3.1/bin/mtgp32dc && \
+mv /opt/MTGPDC/src/mtgp64dc /usr/local/mtgpdc/0.3.1/bin/mtgp64dc && \
+cp /opt/MTGPDC/src/fast-param.awk /usr/local/mtgpdc/0.3.1/bin/fast-param.awk && \
+cp /opt/MTGPDC/src/check-sha-uniq.sh /usr/local/mtgpdc/0.3.1/bin/check-sha-uniq.sh && \
+rm -rf /opt/MTGPDC && \
+mv /opt/*.sh /usr/local/mtgpdc/0.3.1/bin/. && \
+echo "export PATH=/usr/local/mtgpdc/0.3.1/bin:"'$'"{PATH}" >> /.singularity.d/env/90-environment.sh && \
+rm -rf \
+  /var/lib/apt/lists/*

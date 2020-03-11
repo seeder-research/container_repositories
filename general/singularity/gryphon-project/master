@@ -1,0 +1,15 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+set               name              gryphon-project
+set               root              /usr/local/${name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds ${name} path to your environment,"
+}
+
+module-whatis "adds ${name} to your environment."
+
+prepend-path      PYTHONPATH            ${root}/source

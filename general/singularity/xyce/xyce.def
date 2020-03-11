@@ -1,0 +1,72 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export MODULEPATH="/usr/local/modulefiles:/usr/local/modulefiles/dev"
+module load \
+  openmpi \
+  intel/mkl \
+  bison \
+  flex \
+  adms \
+  metis \
+  suitesparse \
+  trilinos
+export XYCE_VER=7.0
+export XYCE_SRC=/opt/Xyce-Release-${XYCE_VER}.0
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/Xyce/Xyce/archive/Release-${XYCE_VER}.0.tar.gz && \
+tar xf /opt/Release-${XYCE_VER}.0.tar.gz && \
+mkdir -p ${XYCE_SRC}/builddir && \
+cd ${XYCE_SRC} && \
+sed -e "s@3\.4,@3.5, 3.4,@g" -i ./configure.ac && \
+./bootstrap && \
+cd ${XYCE_SRC}/builddir && \
+${XYCE_SRC}/configure \
+  CXXFLAGS="-m64 -O3 -std=c++11 -fopenmp -fPIC" \
+  ARCHDIR="${LIBTRILINOS_ROOT}" \
+  CPPFLAGS="-m64 -I${SUITESPARSE_ROOT}/include -I${LIBTRILINOS_ROOT}/include -I${MKLROOT}/include" \
+  LDFLAGS="-L${LIBTRILINOS_ROOT}/lib -L${SUITESPARSE_ROOT}/lib -L${MKLROOT}/lib/intel64 -L/usr/lib/x86_64-linux-gnu -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_sequential -lmkl_intel_lp64 -lmkl_core -Wl,--as-needed -lteuchoscore -lpthread -lm -ldl" \
+  --prefix=/usr/local/xyce/${XYCE_VER} \
+  --enable-admsmodels \
+  --enable-neuronmodels \
+  --enable-reaction_parser \
+  --enable-xyce-shareable \
+  --disable-static \
+  --enable-shared \
+  --enable-mpi \
+  --enable-intel_fft \
+  --enable-adms_sensitivities \
+  CXX=mpicxx \
+  CC=mpicc \
+  F77=mpifort \
+  F90=mpifort \
+  FC=mpifort && \
+sed -e "s/-Wl,--as-needed//g" -i src/Makefile && \
+sed -e "s/-Wl,--as-needed//g" -i Makefile && \
+make -j$(nproc) && \
+make install && \
+cd /usr/local/xyce/${XYCE_VER} && \
+if [ ! -d /usr/local/modulefiles/xyce ]; then
+    mkdir -p /usr/local/modulefiles/xyce
+fi
+cd /usr/local/modulefiles/xyce && \
+sed -i "s/@pver@/${XYCE_VER}/g" /opt/modfile && \
+mv /opt/
+  /usr/local/modulefiles/xyce/${XYCE_VER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${XYCE_VER}" >> .version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/${XYCE_VER} \
+  ${XYCE_SRC} \
+  /opt/Release-${XYCE_VER}.0.tar.gz \

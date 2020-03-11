@@ -1,0 +1,24 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              tbb
+set              version           latest
+set              root              /opt/intel/inteloneapi/${name}/${latest}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+setenv TBBROOT ${root}
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64/gcc4.8
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64/gcc4.8
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64/gcc4.8
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include

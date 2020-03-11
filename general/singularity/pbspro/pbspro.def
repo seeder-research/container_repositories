@@ -1,0 +1,30 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export PBSPROVER=19.1.2
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/PBSPro/pbspro/archive/v${PBSPROVER}.tar.gz && \
+tar xf /opt/v${PBSPROVER}.tar.gz && \
+cd /opt/openpbs-19.1.2 && \
+./autogen.sh && \
+./configure \
+  --prefix=/opt/pbspro/v${PBSPROVER} \
+  --with-pbs-server-home=/opt/pbspro/v${PBSPROVER}/spool && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/pbspro && \
+cd /usr/local/modulefiles/dev/pbspro && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${PBSPROVER}" >> .version && \
+sed -i "s/@pver@/${PBSPROVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/pbspro/${PBSPROVER} && \
+cd /opt && \
+rm -rf \
+  /opt/openpbs-${PBSPROVER} \
+  /opt/v${PBSPROVER}.tar.gz

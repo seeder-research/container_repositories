@@ -1,0 +1,82 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+    export TERM=xterm
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && \
+    apt-get install -y \
+      apt-transport-https \
+      apt-utils && \
+    echo "libnccl2 install" | /usr/bin/dpkg --set-selections && \
+    echo "libcudnn7 install" | /usr/bin/dpkg --set-selections && \
+    apt-get upgrade -y && \
+    ln -snf /usr/share/zoneinfo/Asia/Singapore /etc/localtime && \
+    echo Asia/Singapore > /etc/timezone && \
+    TZ=Asia/Singapore apt install -y tzdata && \
+    apt-get install -y --no-install-recommends \
+      autoconf \
+      automake \
+      autopoint \
+      bc \
+      build-essential \
+      bzip2 \
+      ca-certificates \
+      cmake \
+      cmake-curses-gui \
+      doxygen \
+      environment-modules \
+      expat \
+      freeglut3 \
+      g++ \
+      gcc \
+      gfortran \
+      git \
+      gnupg \
+      gzip \
+      help2man \
+      libedit2 \
+      libedit-dev \
+      libexpat-dev \
+      libhdf5-dev \
+      libhwloc-dev \
+      libical-dev \
+      libnetcdf13 \
+      libnetcdf-dev \
+      libnetcdf-c++4-dev \
+      libnetcdf-c++4-1 \
+      libnetcdff-dev \
+      libnetcdff6 \
+      libssl-dev \
+      libtool \
+      libx11-dev \
+      libxext-dev \
+      libxft-dev \
+      libxml2-dev \
+      libxml2 \
+      libxt-dev \
+      locales \
+      locales-all \
+      localehelper \
+      localepurge \
+      man \
+      m4 \
+      nano \
+      ncurses-dev \
+      patch \
+      perl \
+      postgresql \
+      postgresql-server-dev-all \
+      postgresql-contrib \
+      python \
+      python-dev \
+      rsync \
+      swig \
+      tcl \
+      tcl-dev \
+      tk \
+      tk-dev \
+      wget && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+    rm -rf /var/lib/apt/lists/* 

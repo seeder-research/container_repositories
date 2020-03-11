@@ -1,0 +1,26 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+cd /opt && \
+wget --no-check-certificate \
+  https://www.tug.org/texlive/files/debian-equivs-2021-ex.txt && \
+apt update && \
+apt-get install --no-install-recommends -y \
+  ghostscript \
+  evince \
+  equivs && \
+mkdir /opt/tl-equivs && \
+cd /opt/tl-equivs && \
+mv /opt/debian-equivs-2021-ex.txt \
+  /opt/tl-equivs/texlive-local && \
+equivs-build texlive-local && \
+dpkg -i texlive-local_2021-1_all.deb && \
+apt-get install -f && \
+apt-get autoremove -y && \
+apt-get autoclean && \
+rm -rf \
+  /opt/tl-equivs \
+  /var/lib/apt/lists/*

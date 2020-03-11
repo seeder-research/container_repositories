@@ -1,0 +1,87 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export FIPY_VER=3.4.1
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  intel/mkl \
+  metis \
+  suitesparse \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  glpk \
+  trilinos \
+  fltk \
+  occt \
+  gmsh \
+  amgx
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+conda install -y \
+  bcolz \
+  cython \
+  h5py \
+  lxml \
+  matplotlib \
+  nose \
+  notebook \
+  numpy \
+  Pillow \
+  pandas \
+  pyamg \
+  pydot \
+  pygpu \
+  PyQtGraph \
+  pyyaml \
+  scikit-fmm \
+  scikit-learn \
+  scipy \
+  scipy \
+  setuptools \
+  six \
+  sympy \
+  vtk \
+  wheel && \
+conda install -y \
+  -c anaconda \
+  mayavi && \
+cd /opt && \
+git clone https://github.com/usnistgov/fipy.git -b ${FIPY_VER} \
+  ./fipy && \
+cd /opt/fipy && \
+python setup.py install && \
+cd /opt && \
+conda clean -yt && \
+echo ". /etc/profile.d/modules.sh" >> /.singularity.d/env/90-environment.sh
+echo ". /etc/profile.d/conda.sh" >> /.singularity.d/env/90-environment.sh
+echo "module load \\" >> /.singularity.d/env/90-environment.sh
+echo "  openmpi \\" >> /.singularity.d/env/90-environment.sh
+echo "  intel/mkl \\" >> /.singularity.d/env/90-environment.sh
+echo "  metis \\" >> /.singularity.d/env/90-environment.sh
+echo "  suitesparse \\" >> /.singularity.d/env/90-environment.sh
+echo "  hdf5 \\" >> /.singularity.d/env/90-environment.sh
+echo "  pnetcdf \\" >> /.singularity.d/env/90-environment.sh
+echo "  netcdf \\" >> /.singularity.d/env/90-environment.sh
+echo "  boost \\" >> /.singularity.d/env/90-environment.sh
+echo "  glpk \\" >> /.singularity.d/env/90-environment.sh
+echo "  parmetis \\" >> /.singularity.d/env/90-environment.sh
+echo "  petsc \\" >> /.singularity.d/env/90-environment.sh
+echo "  petsc4py \\" >> /.singularity.d/env/90-environment.sh
+echo "  trilinos \\" >> /.singularity.d/env/90-environment.sh
+echo "  fltk \\" >> /.singularity.d/env/90-environment.sh
+echo "  occt \\" >> /.singularity.d/env/90-environment.sh
+echo "  gmsh \\" >> /.singularity.d/env/90-environment.sh
+echo "  amgx" >> /.singularity.d/env/90-environment.sh
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/fipy

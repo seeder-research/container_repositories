@@ -1,0 +1,58 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /etc/profile.d/modules.sh
+. /.singularity.d/env/90-environment.sh
+module load \
+  openmpi \
+  intel/mkl && \
+export ELPAVER=2016.05.004
+export SCALAPACK_LDFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -Wl,-rpath,${MKLROOT}/lib/intel64"
+export SCALAPACK_FCFLAGS="-L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64 -lmkl_gf_lp64 -lmkl_sequential -lmkl_core -Wl,--as-needed -lpthread -lm -I${MKLROOT}/include/intel64/lp64"
+export CC=mpicc
+export FC=mpifort
+export FCFLAGS="-O2 -mavx"
+export CFLAGS="-O2 -mavx"
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/ELPA_${ELPAVER}/elpa-ELPA_${ELPAVER}.tar.bz2 && \
+tar xf /opt/elpa-ELPA_${ELPAVER}.tar.bz2 && \
+cd /opt/elpa-ELPA_${ELPAVER} && \
+./autogen.sh && \
+./configure \
+  --prefix=/usr/local/elpa/${ELPAVER} \
+  --enable-openmp=no && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+rm -rf /opt/elpa-ELPA_${ELPAVER} && \
+tar xf /opt/elpa-ELPA_${ELPAVER}.tar.bz2 && \
+cd /opt/elpa-ELPA_${ELPAVER} && \
+./autogen.sh && \
+./configure \
+  --prefix=/usr/local/elpa/${ELPAVER} \
+  --enable-openmp=yes && \
+make -j$(nproc) && \
+make install && \
+cd /opt && \
+mkdir /usr/local/modulefiles/dev/elpa && \
+cd /usr/local/modulefiles/dev/elpa && \
+sed -i "s/@pver@/${ELPAVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/elpa/${ELPAVER} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${ELPAVER}" >> .version && \
+cd /opt && \
+rm -rf \
+  /opt/elpa-ELPA_${ELPAVER} \
+  /opt/elpa-ELPA_${ELPAVER}.tar.bz2 \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1

@@ -1,0 +1,28 @@
+BootStrap: localimage
+From: pre.sif
+
+%appenv fenics
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+
+%post
+/opt/conda/bin/conda config --add channels \
+  anaconda && \
+/opt/conda/bin/conda config --add channels \
+  conda-forge && \
+/opt/conda/bin/conda install \
+  python=3.6 \
+  numpy \
+  scipy \
+  sympy \
+  cgal \
+  gmsh \
+  tetgen && \
+/opt/conda/bin/pip install \
+  pygmsh && \
+/opt/conda/bin/conda install \
+  fenics=2018.1.0 \
+  matplotlib \
+  meshio \
+  mshr && \
+/opt/conda/bin/conda clean -yt

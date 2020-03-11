@@ -1,0 +1,32 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+unset CPATH
+unset INCLUDE_PATH
+mkdir -p /opt/intel/builddir && \
+cd /opt/intel/builddir && \
+git clone https://github.com/intel/llvm -b sycl && \
+cd /opt/intel/builddir/llvm && \
+/usr/bin/python \
+  /opt/intel/builddir/llvm/buildbot/configure.py \
+    --cmake-gen "Unix Makefiles" \
+    --cuda \
+    -t Release \
+    --shared-libs \
+    --cmake-opt='-DCMAKE_C_COMPILER=/usr/bin/gcc' \
+    --cmake-opt='-DCMAKE_CXX_COMPILER=/usr/bin/g++' \
+    --cmake-opt='-DCMAKE_INSTALL_PREFIX=/opt/intel/dpcpp' \
+    --no-werror && \
+cd /opt/intel/builddir/llvm/build && \
+make -j$(nproc) install && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/intel/dpcpp && \
+rm -rf \
+  /opt/intel/builddir

@@ -1,0 +1,29 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              vendor            intel
+set              name              dpcpp
+set              root              /opt/${vendor}/${name}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $vendor $name to your environment variables"
+}
+
+module-whatis "adds $vendor $name to your environment variables."
+
+prepend-path      PATH              ${root}/bin
+
+prepend-path      CPATH             ${root}/include
+prepend-path      INCLUDE_PATH      ${root}/include
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib
+prepend-path      LIBRARY_PATH      ${root}/lib
+prepend-path      LD_RUN_PATH       ${root}/lib
+
+prepend-path      PKG_CONFIG_PATH   ${root}/lib/pkgconfig
+
+prepend-path      CMAKE_MODULE_PATH ${root}/lib/cmake/clang
+prepend-path      CMAKE_MODULE_PATH ${root}/lib/cmake/llvm

@@ -1,0 +1,29 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              ipp
+set              version           latest
+set              root              /opt/intel/oneapi/${name}/${version}
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds Intel(R) OneAPI ${name} (version $version) to your environment variables"
+}
+
+module-whatis "adds Intel(R) OneAPI ${name} (version $version) to your environment variables."
+
+if {![is-loaded intel/mkl_ilp64]} {prereq intel/mkl}
+if {![is-loaded intel/mkl]} {prereq intel/mkl_ilp64}
+prereq intel/tbb
+
+setenv            IPPROOT           ${root}
+setenv            IPP_TARGET_ARCH   intel64
+
+prepend-path      LD_LIBRARY_PATH   ${root}/lib/intel64_lin
+prepend-path      LD_RUN_PATH       ${root}/lib/intel64_lin
+prepend-path      LIBRARY_PATH      ${root}/lib/intel64_lin
+
+prepend-path	  CPATH		    ${root}/include
+prepend-path	  INCLUDE_PATH	    ${root}/include

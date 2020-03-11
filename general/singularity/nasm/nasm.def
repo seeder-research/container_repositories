@@ -1,0 +1,26 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export NASMVER=2.14.02
+cd /opt && \
+wget --no-check-certificate \
+  https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.bz2 && \
+tar xjvf /opt/nasm-${NASMVER}.tar.bz2 && \
+cd /opt/nasm-${NASMVER} && \
+./autogen.sh && \
+./configure --prefix="/usr/local/nasm/${NASMVER}" && \
+make && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/nasm && \
+cd /usr/local/modulefiles/dev/nasm && \
+sed -i "s/@pver@/${NASMVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/nasm/${NASMVER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/nasm/.version && \
+echo set ModulesVersion "${NASMVER}" >> /usr/local/modulefiles/dev/nasm/.version && \
+rm -rf \
+  /opt/nasm*

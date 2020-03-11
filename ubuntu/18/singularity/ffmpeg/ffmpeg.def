@@ -1,0 +1,9 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+apt update && \
+apt-get install -y \
+  ffmpeg && \
+rm -rf \
+  /var/lib/apt/lists/*

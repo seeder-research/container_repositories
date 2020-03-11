@@ -1,0 +1,11 @@
+BootStrap: docker
+From: nvidia/cuda:11.0-cudnn8-devel-centos8
+
+%files
+90-environment.sh    /opt
+
+%post
+yum upgrade -y
+rm -f /.singularity.d/90-environment.sh && \
+mv /opt/90-environment.sh \
+  /.singularity.d/90-environment.sh

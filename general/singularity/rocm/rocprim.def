@@ -1,0 +1,43 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+export ROC_VER=3.3.0
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  roc
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://github.com/ROCmSoftwarePlatform/rocPRIM/archive/rocm-${ROC_VER}.tar.gz && \
+tar xf /opt/rocm-${ROC_VER}.tar.gz && \
+mkdir /opt/rocPRIM-rocm-${ROC_VER}/builddir && \
+cd /opt/rocPRIM-rocm-${ROC_VER}/builddir && \
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_COMPILER=hcc \
+  -DBUILD_TEST=OFF \
+  -DONLY_INSTALL=ON \
+  .. && \
+make -j$(nproc) && \
+make install && \
+cd /usr/local/modulefiles/dev/roc && \
+echo "######## ROCPRIM ########" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "setenv            ROCPRIM_ROOT      "'$'"{root}/rocprim" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >>  /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CPATH             "'$'"{root}/rocprim/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      INCLUDE_PATH      "'$'"{root}/rocprim/include" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+echo "prepend-path      CMAKE_PREFIX_PATH "'$'"{root}/rocprim/lib/cmake/rocprim" >> /usr/local/modulefiles/dev/roc/${ROC_VER} && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/rocPRIM-rocm-${ROC_VER} \
+  /opt/rocm-${ROC_VER}.tar.gz

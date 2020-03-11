@@ -1,0 +1,16 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm
+cd /opt && \
+add-apt-repository -y -u \
+  ppa://inkscape.dev/stable && \
+apt update && \
+apt-get install --no-install-recommends -y \
+  inkscape && \
+apt-get autoremove -y && \
+apt-get autoclean && \
+rm -rf \
+  /var/lib/apt/lists/*

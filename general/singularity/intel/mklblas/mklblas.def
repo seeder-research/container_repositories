@@ -1,0 +1,22 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+mklblas    /opt
+
+%post
+mkdir -p /usr/local/mklblas && \
+cd /opt/intel/compilers_and_libraries/linux/mkl/interfaces/blas95 && \
+make \
+  libintel64 \
+  INSTALL_DIR=/usr/local/mklblas \
+  interface=lp64 \
+  FC=gfortran && \
+cd /opt/intel/compilers_and_libraries/linux/mkl/interfaces/lapack95 && \
+make \
+  libintel64 \
+  INSTALL_DIR=/usr/local/mklblas \
+  interface=lp64 \
+  FC=gfortran && \
+mv /opt/mklblas \
+  /usr/local/modulefiles/dev/intel/mklblas

@@ -1,0 +1,37 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+. /.singularity.d/env/90-environment.sh
+export JULIAVER=1.4.0
+module load \
+  openmpi \
+  intel/mkl && \
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate https://github.com/JuliaLang/julia/archive/v${JULIAVER}.tar.gz && \
+tar xf /opt/v${JULIAVER}.tar.gz && 
+cd /opt/julia-${JULIAVER} && \
+echo "prefix=/usr/local/julia/${JULIAVER}" > /opt/julia-${JULIAVER}/Make.user && \
+make -j$(nproc) \
+  USE_INTEL_MKL=1 && \
+make install \
+  USE_INTEL_MKL=1 && \
+mkdir -p /usr/local/modulefiles/dev/julia && \
+cd /usr/local/modulefiles/dev/julia && \
+sed -i "s/@pver@/${JULIAVER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/julia/${JULIAVER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/julia/.version && \
+echo set ModulesVersion "${GOVER}" >> /usr/local/modulefiles/dev/julia/.version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/v${JULIAVER}.tar.gz \
+  /opt/julia-${JULIAVER}

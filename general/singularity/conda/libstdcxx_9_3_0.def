@@ -1,0 +1,11 @@
+BootStrap: localimage
+From: pre.sif
+
+%post
+. /etc/profile.d/conda.sh && \
+conda install \
+  -c conda-forge \
+  -y \
+  gcc_linux-64=9.3.0 \
+  libstdcxx-ng=9.3.0 && \
+conda clean -yt

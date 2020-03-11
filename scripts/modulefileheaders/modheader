@@ -1,0 +1,15 @@
+#%Module -*- tcl -*-
+##
+## modulefile
+##
+
+set              name              @name@
+set              version           @version@
+set              root              @basepath@/$name/$version
+
+proc ModulesHelp { } {
+
+  puts stderr "\tAdds $name (version $version) to your environment variables"
+}
+
+module-whatis "adds $name (version $version) to your environment variables."

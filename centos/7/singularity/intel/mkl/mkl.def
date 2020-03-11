@@ -1,0 +1,58 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+daal       /opt
+iomp       /opt
+ipp        /opt
+mkl        /opt
+mkl_ilp64  /opt
+mpi        /opt
+pstl       /opt
+tbb_gcc47  /opt
+
+%post
+yum install -y \
+  intel-mkl-2019.4-070 \
+  intel-tbb-2019.6-070 \
+  intel-ipp-2019.4-070 \
+  intel-daal-2019.4-070 \
+  intel-mpi-2019.4-070 && \
+mkdir -p /usr/local/modulefiles/dev/intel && \
+mv /opt/daal \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/iomp \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/ipp \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mkl_ilp64 \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/mpi \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/pstl \
+  cd /usr/local/modulefiles/dev/intel/. && \
+mv /opt/tbb \
+  cd /usr/local/modulefiles/dev/intel/. && \
+sed -i "s/@pver@/2019.4.243/g" \
+  /usr/local/modulefiles/dev/intel/*
+
+%appenv mkl
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+
+%appenv mklmpi
+. /etc/profile.d/modules.sh
+module load intel/mkl
+module load intel/ipp
+module load intel/iomp
+module load intel/daal
+module load intel/tbb_gcc47
+module load intel/pstl
+module load intel/mpi

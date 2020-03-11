@@ -1,0 +1,19 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+
+%post
+cd /opt && \
+add-apt-repository "deb https://apt.repos.intel.com/2019 intel-psxe-runtime main" && \
+apt-get update && \
+apt-get install -y \
+  -o Aptitude::ProblemResolver::SolutionCost='100*canceled-actions,200*removals' \
+  intel-icc-runtime=2019.4-243 \
+  intel-icc-common-runtime=2019.4-243 \
+  intel-icc-comp-runtime=2019.4-243 \
+  intel-icc-openmp-runtime=2019.4-243 \
+  intel-ifort-runtime=2019.4-243 \
+  intel-mpi-runtime=2019.4-243 && \
+rm -rf \
+  /var/lib/apt/lists/*

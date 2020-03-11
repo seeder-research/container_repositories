@@ -1,0 +1,52 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile        /opt
+
+%post
+. /etc/profile
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  hdf5 \
+  pnetcdf \
+  netcdf \
+  intel/mkl \
+  metis \
+  parmetis \
+  suitesparse \
+  boost \
+  hypre \
+  scotch \
+  petsc
+export SLEPC_VER=3.13
+export PETSC_DIR=$PETSC_ROOT
+conda install -y \
+  cython
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+git clone https://gitlab.com/slepc/slepc.git -b v${SLEPC_VER} \
+  ./slepc-${SLEPC_VER} && \
+cd /opt/slepc-${SLEPC_VER} && \
+export SLEPC_DIR=${PWD} && \
+./configure \
+  --prefix=/usr/local/slepc/${SLEPC_VER}.0 && \
+make all && \
+make install && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/slepc-${SLEPC_VER} \
+  /opt/slepc-${SLEPC_VER}.tar.gz && \
+mkdir -p /usr/local/modulefiles/dev/slepc && \
+cd /usr/local/modulefiles/dev/slepc && \
+sed -i "s/@pver@/${SLEPC_VER}.0/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/slepc/${SLEPC_VER}.0 && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${SLEPC_VER}.0" >> .version

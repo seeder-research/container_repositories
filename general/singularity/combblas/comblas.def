@@ -1,0 +1,43 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile
+export MODULEPATH=/usr/local/modulefiles/dev:/usr/local/modulefiles
+module load \
+  openmpi \
+  intel/mkl
+export COMBBLASVER_MAJ=1
+export COMBBLASVER_MIN=6
+export COMBBLASVER_BLD=2
+export CXXFLAGS="-fPIC"
+export CFLAGS="-fPIC"
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  http://eecs.berkeley.edu/~aydin/CombBLAS_FILES/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}.tgz && \
+tar xf /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}.tgz && \
+mkdir /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}/build && \
+cd /opt/CombBLAS_beta_${COMBBLASVER_MAJ}${COMBBLASVER_MIN}_${COMBBLASVER_BLD}/build && \
+cmake \
+  -DCMAKE_INSTALL_PREFIX=/usr/local/combblas/${COMBBLASVER_MAJ}.${COMBBLASVER_MIN}.${COMBBLASVER_BLD} \
+  .. && \
+make -j$(nproc) && \
+make install && \
+mkdir /usr/local/modulefiles/dev/combblas && \
+cd /usr/local/modulefiles/dev/combblas && \
+sed -i "s/@pver@/${COMBBLASVER_MAJ}.${COMBBLASVER_MIN}.${COMBBLASVER_BLD}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/combblas/${COMBBLASVER_MAJ}.${COMBBLASVER_MIN}.${COMBBLASVER_BLD} && \
+echo "#%Module" > .version && \
+echo set ModulesVersion "${COMBBLASVER_MAJ}.${COMBBLASVER_MIN}.${COMBBLASVER_BLD}" >> .version && \
+cd /opt && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/CombBLAS*

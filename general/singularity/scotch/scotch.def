@@ -1,0 +1,53 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+. /etc/profile.d/modules.sh
+. /etc/profile.d/conda.sh
+export MODULEPATH=/usr/local/modulefiles:/usr/local/modulefiles/dev
+module load \
+  openmpi \
+  intel/mkl \
+  bison \
+  flex
+export SCOTCH_VER=6.0.9
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LIBRARY_PATH
+export LD_RUN_PATH=/usr/local/cuda/lib64/stubs:$LD_RUN_PATH
+cp /usr/local/cuda/lib64/stubs/libnvidia-ml.so /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 && \
+cd /opt && \
+wget --no-check-certificate \
+  https://gforge.inria.fr/frs/download.php/file/38187/scotch_${SCOTCH_VER}.tar.gz && \
+tar xf /opt/scotch_${SCOTCH_VER}.tar.gz && \
+cd /opt/scotch_${SCOTCH_VER} && \
+cp -a /opt/scotch_${SCOTCH_VER}/src /opt/scotch_${SCOTCH_VER}/src_static && \
+cp -a /opt/scotch_${SCOTCH_VER}/src /opt/scotch_${SCOTCH_VER}/src_shared && \
+cp \
+  /opt/scotch_${SCOTCH_VER}/src/Make.inc/Makefile.inc.x86-64_pc_linux2 \
+  /opt/scotch_${SCOTCH_VER}/src_static/Makefile.inc && \
+cp \
+  /opt/scotch_${SCOTCH_VER}/src/Make.inc/Makefile.inc.x86-64_pc_linux2.shlib \
+  /opt/scotch_${SCOTCH_VER}/src_shared/Makefile.inc && \
+cd /opt/scotch_${SCOTCH_VER}/src_static && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} -j$(nproc) esmumps && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} -j$(nproc) ptesmumps && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} install && \
+cd /opt/scotch_${SCOTCH_VER}/src_shared && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} -j$(nproc) esmumps && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} -j$(nproc) ptesmumps && \
+make prefix=/usr/local/scotch/${SCOTCH_VER} install && \
+mkdir -p /usr/local/modulefiles/dev/scotch && \
+cd /usr/local/modulefiles/dev/scotch && \
+sed -i "s/@pver@/${SCOTCH_VER}/g" /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/scotch/${SCOTCH_VER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/scotch/.version && \
+echo set ModulesVersion "${SCOTCH_VER}" >> /usr/local/modulefiles/dev/scotch/.version && \
+rm -rf \
+  /usr/local/cuda/lib64/stubs/libnvidia-ml.so.1 \
+  /opt/scotch_${SCOTCH_VER}.tar.gz \
+  /opt/scotch_${SCOTCH_VER} \
+  /opt/${SCOTCH_VER}

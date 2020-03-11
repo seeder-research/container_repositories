@@ -1,0 +1,54 @@
+BootStrap: localimage
+From: pre.sif
+
+%files
+modfile    /opt
+
+%post
+export QT_VER=5.14.2
+export SEDSTR="s/@pver@/${QT_VER}/g"
+cd /opt && \
+git clone https://code.qt.io/qt/qt5.git -b v${QT_VER} \
+  qt-src && \
+cd /opt/qt-src && \
+perl init-repository \
+  --module-subset=essential,addon,deprecated,-qtandroidextras,-qtconnectivity,-qtdocgallery,-qtgamepad,-qtlocation,-qtmacextras,-qtpurchasing,-qtsensors,-qtwebengine,-qtwinextras && \
+mkdir /opt/qt-build && \
+cd /opt/qt-build && \
+sed -i "/qmutex_linux/d" /opt/qt-src/qtbase/src/corelib/thread/thread.pri && \
+/opt/qt-src/configure \
+  -prefix /usr/local/qt/${QT_VER} \
+  -confirm-license \
+  -opensource \
+  -nomake examples \
+  -nomake tests \
+  -no-rpath \
+  -skip qtandroidextras \
+  -skip qtconnectivity \
+  -skip qtgamepad \
+  -skip qtlocation \
+  -skip qtmacextras \
+  -skip qtpurchasing \
+  -skip qtsensors \
+  -skip qtwayland \
+  -skip qtwebengine \
+  -skip qtwinextras \
+  -qt-freetype \
+  -qt-harfbuzz \
+  -qt-libjpeg \
+  -qt-libpng \
+  -qt-pcre \
+  -qt-xcb && \
+cd /opt/qt-build && \
+make module-qtscript && \
+make -j$(nproc) && \
+make install && \
+mkdir -p /usr/local/modulefiles/dev/qt && \
+cd /usr/local/modulefiles/dev/qt && \
+sed -i ${SEDSTR} /opt/modfile && \
+mv /opt/modfile \
+  /usr/local/modulefiles/dev/qt/${QT_VER} && \
+echo "#%Module" > /usr/local/modulefiles/dev/qt/.version && \
+echo set ModulesVersion "${QT_VER}" >> /usr/local/modulefiles/dev/qt/.version && \
+rm -rf \
+  /opt/qt*
